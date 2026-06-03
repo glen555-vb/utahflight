@@ -1,0 +1,102 @@
+{
+  "brand": {
+    "name": "Utah Flight",
+    "eyebrow": "Utah Volleyball Club",
+    "logo": "assets/media/utah-flight-facebook-logo.jpg",
+    "colors": {
+      "background": "#08111f",
+      "backgroundSoft": "#0f1d32",
+      "card": "#111f35",
+      "accent": "#f05a28",
+      "accentSoft": "#ffb487",
+      "text": "#f5f7fb",
+      "muted": "#9eb0ca"
+    }
+  },
+  "hero": {
+    "kicker": "Boys Club Volleyball residing in Eagle Mountain, Utah",
+    "title": "Train With Purpose. Build Character. Fly Higher Together.",
+    "copy": "Utah Flight is built for athletes who want to compete with the best, develop skills, and a club culture that feels intense, positive, and united.",
+    "primaryLabel": "Tryout Interest",
+    "primaryHref": "https://forms.gle/cWSP4QoWLbQyVMMb9",
+    "secondaryLabel": "View Programs",
+    "stats": [
+    
+    ],
+    "video": "assets/media/flight 2025 highlight video mtn view.mp4",
+    "poster": "assets/media/Salt City Boys Slay Champs.jpeg"
+  },
+  "ribbon": [
+    "Train with Purpose",
+    "Build Character",
+    "Fly Higher Together"
+  ],
+  
+  "programs": [
+    {
+      "title": "Middle School Development",
+      "copy": "Our middle school team is perfect for middle school aged kids wanting to develop more advanced skills and compete at an advanced level",
+      "meta": "Ages 12-14U"
+    },
+    {
+      "title": "High School Club Teams",
+      "copy": "Our club teams compete well against the best in Utah. Our teams typically place in the highest bracket of the tournaments they play in.",
+      "meta": "Ages 14U-18U"
+    },
+    {
+      "title": "Girls Club",
+      "copy": "Not currently offered - please contact us",
+      "meta": "Ages 14-18"
+    }
+   
+  ],
+
+  "gallery": [
+    {
+      "title": "Salt City Boys Slay Tournament Champs (18s)",
+      "copy": "Utah Flight 18s - winners of 18u Salt City Boys Slay Tournament.",
+      "image": "assets/media/Salt City Boys Slay Champs.jpeg"
+    },
+    {
+      "title": "Mountain Peak Tournament Champs",
+      "copy": "Utah Flight 18s - winners of the Mountain Peak Tournament.",
+      "image": "assets/media/Utah Flight 2025 Mountain Peak tournament champs.JPEG"
+    },
+    {
+      "title": "Vortex Tournament Runner Up",
+      "copy": "Runner-up finish photo from the 2025 Vortex 18 Open Tournament event.",
+      "image": "assets/media/Utah Flight 2025 vortex runner up.JPEG"
+    }
+  ],
+  "timeline": [
+    {
+      "date": "July 6th, July 13th",
+      "title": "Tryouts for 2026 Club",
+      "copy": "Our club teams compete against the best clubs in Utah and will play in 6-7 tournaments, including 1-2 travel tournaments"
+    },
+    {
+      "date": "August - December",
+      "title": "Club Season",
+      "copy": "Practices will be twice a week starting in August, with tournaments starting in September going through December"
+    },
+    {
+      "date": "Summer",
+      "title": "Camps And Skills Training",
+      "copy": "TBD"
+    }
+  ],
+  "contact": {
+    "title": "Volleyball is our passion.  We want to hear from you.",
+    "copy": "Contact us at Volleyballroof@gmail.com.  We would love to hear from you and what needs you have for volleyball here in the Eagle Mountain area." ,
+    "emailHref": "mailto:volleyballfoof@gmail.com",
+    "facebookLabel": "Visit Facebook Page",
+    "facebookHref": "https://www.facebook.com/UtahFlightVolleyball/"
+  },
+  "footer": {
+    "copy": "Utah Flight - Fly Higher Together"
+  },
+  "references": {
+    "facebookLabel": "Utah Flight Facebook",
+    "facebookHref": "https://www.facebook.com/UtahFlightVolleyball/"
+  }
+}

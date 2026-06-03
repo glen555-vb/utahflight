@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utah Flight Volleyball Club</title>
+    <meta
+      name="description"
+      content="Utah Flight Volleyball Club website for athletes and families in Eagle Mountain, Utah."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="topbar">
+        <a class="brand" href="#home" aria-label="Utah Flight home">
+          <img id="brand-logo" alt="Utah Flight logo" />
+          <div>
+            <p id="brand-eyebrow" class="eyebrow"></p>
+            <p id="brand-name" class="brand-name"></p>
+          </div>
+        </a>
+        <nav class="nav">
+          <a href="#about">About</a>
+          <a href="#programs">Programs</a>
+          <a href="#gallery">Gallery</a>
+          <a href="#contact">Contact</a>
+        </nav>
+        <a id="nav-cta" class="button button-small" href="https://forms.gle/cWSP4QoWLbQyVMMb9"></a>
+      </header>
+
+      <main>
+        <section id="home" class="hero">
+          <div class="hero-media">
+            <video
+              id="hero-video"
+              class="hero-video"
+              autoplay
+              muted
+              loop
+              playsinline
+              poster=""
+            ></video>
+            <div class="hero-overlay"></div>
+          </div>
+          <div class="hero-content container">
+            <p id="hero-kicker" class="kicker"></p>
+            <h1 id="hero-title"></h1>
+            <p id="hero-copy" class="hero-copy"></p>
+            <div class="hero-actions">
+              <a id="hero-primary" class="button" href="https://forms.gle/cWSP4QoWLbQyVMMb9"></a>
+              <a id="hero-secondary" class="button button-ghost" href="#programs"></a>
+            </div>
+            <div id="hero-stats" class="hero-stats"></div>
+          </div>
+        </section>
+
+        <section class="feature-ribbon">
+          <div class="container ribbon-grid" id="feature-ribbon"></div>
+        </section>
+
+        <section id="about" class="section section-dark">
+          <div class="container about-grid">
+            <div class="section-heading">
+              <p class="kicker">About Utah Flight</p>
+              <h2 id="about-title"></h2>
+              <p id="about-copy"></p>
+            </div>
+            <div class="quote-card">
+              <p class="quote-mark">"</p>
+              <p id="about-quote" class="quote-text"></p>
+            </div>
+          </div>
+        </section>
+
+        <section id="programs" class="section">
+          <div class="container">
+            <div class="section-heading centered">
+              <p class="kicker">Programs</p>
+              <h2>Built For Competitive Growth</h2>
+              <p>See below for our current offerings.</p>
+            </div>
+            <div id="program-grid" class="program-grid"></div>
+          </div>
+        </section>
+
+        <section class="section section-accent">
+          <div class="container split-panel">
+            <div>
+              <p class="kicker">Why Families Choose Flight</p>
+              <h2 id="recruiting-title"></h2>
+              <p id="recruiting-copy"></p>
+            </div>
+            <div id="recruiting-points" class="stacked-points"></div>
+          </div>
+        </section>
+
+        <section id="gallery" class="section section-dark">
+          <div class="container">
+            <div id="gallery-grid" class="gallery-grid"></div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="container timeline-wrap">
+            <div class="section-heading">
+              <p class="kicker">Season Flow</p>
+              <h2>Club Season And Tryouts</h2>
+              <p>See below for information on our upcoming club season.</p>
+            </div>
+            <div id="timeline" class="timeline"></div>
+          </div>
+        </section>
+
+        <section id="contact" class="section cta-section">
+          <div class="container cta-card">
+            <div>
+              <p class="kicker">Contact</p>
+              <h2 id="contact-title"></h2>
+              <p id="contact-copy"></p>
+            </div>
+            <div class="cta-actions">
+              <a id="contact-tryout" class="button" href="https://forms.gle/cWSP4QoWLbQyVMMb9">Tryout Interest</a>
+              <a id="contact-email" class="button button-ghost" href="#"></a>
+              <a id="contact-facebook" class="button button-ghost" target="_blank" rel="noreferrer" href="#"></a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div class="container footer-grid">
+          <div>
+            <p id="footer-name" class="brand-name"></p>
+            <p id="footer-copy"></p>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

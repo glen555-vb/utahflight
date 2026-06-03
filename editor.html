@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utah Flight Content Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="editor.css" />
+  </head>
+  <body>
+    <div class="editor-shell">
+      <header class="editor-header">
+        <div>
+          <p class="eyebrow">Utah Flight Admin</p>
+          <h1>Website Content Editor</h1>
+          <p class="lead">
+            Edit the site with form fields instead of touching JSON by hand. Your changes stay in this browser
+            as a draft until you save or download a new <code>content.json</code>.
+          </p>
+        </div>
+        <div class="action-stack">
+          <button id="reload-content" class="button button-ghost" type="button">Reload Published Content</button>
+          <button id="connect-media-folder" class="button button-ghost" type="button">Connect Media Folder</button>
+          <button id="clear-media-folder" class="button button-ghost" type="button">Clear Media Folder</button>
+          <button id="preview-draft" class="button button-ghost" type="button">Open Draft Preview</button>
+          <button id="copy-json" class="button button-ghost" type="button">Copy JSON</button>
+          <button id="download-json" class="button" type="button">Download content.json</button>
+          <button id="save-json" class="button button-accent" type="button">Save To File</button>
+        </div>
+      </header>
+
+      <section class="status-bar">
+        <div class="status-block">
+          <p id="status-message">Loading content...</p>
+          <p id="media-folder-status" class="status-hint">Media folder not connected yet.</p>
+        </div>
+        <p class="status-hint">
+          Best browser for direct save and media imports: Chrome or Edge. Safari can still use Download.
+        </p>
+      </section>
+
+      <main class="editor-layout">
+        <aside class="editor-sidebar">
+          <p class="sidebar-title">Sections</p>
+          <nav class="sidebar-nav">
+            <a href="#brand-section">Brand</a>
+            <a href="#hero-section">Hero</a>
+            <a href="#about-section">About</a>
+            <a href="#programs-section">Programs</a>
+            <a href="#recruiting-section">Recruiting</a>
+            <a href="#gallery-section">Gallery</a>
+            <a href="#timeline-section">Timeline</a>
+            <a href="#contact-section">Contact</a>
+            <a href="#footer-section">Footer</a>
+          </nav>
+        </aside>
+
+        <div class="editor-main">
+          <form id="editor-form" class="editor-form">
+            <section id="brand-section" class="panel">
+              <div class="panel-header">
+                <p class="eyebrow">Brand</p>
+                <h2>Club Identity And Theme</h2>
+              </div>
+              <div class="field-grid two-up">
+                <label class="field">
+                  <span>Club Name</span>
+                  <input id="brand-name" type="text" />
+                </label>
+                <label class="field">
+                  <span>Small Header Label</span>
+                  <input id="brand-eyebrow" type="text" />
+                </label>
+                <div class="field field-wide">
+                  <span>Logo Image Path</span>
+                  <div class="media-control" data-kind="image">
+                    <input id="brand-logo" type="text" />
+                    <div class="media-actions">
+                      <button class="button button-ghost button-small" type="button" data-action="import-media">Import File</button>
+                      <button class="button button-ghost button-small" type="button" data-action="refresh-preview">Refresh Preview</button>
+                    </div>
+                    <div class="media-preview" data-preview></div>
+                  </div>
+                </div>
+              </div>
+              <div class="field-grid three-up">
+                <label class="field">
+                  <span>Background</span>
+                  <input id="color-background" type="text" />
+                </label>
+                <label class="field">
+                  <span>Background Soft</span>
+                  <input id="color-backgroundSoft" type="text" />
+                </label>
+                <label class="field">
+                  <span>Card</span>
+                  <input id="color-card" type="text" />
+                </label>
+                <label class="field">
+                  <span>Accent</span>
+                  <input id="color-accent" type="text" />
+                </label>
+                <label class="field">
+                  <span>Accent Soft</span>
+                  <input id="color-accentSoft" type="text" />
+                </label>
+                <label class="field">
+                  <span>Text / Muted</span>
+                  <div class="inline-pair">
+                    <input id="color-text" type="text" />
+                    <input id="color-muted" type="text" />
+                  </div>
+                </label>
+              </div>
+            </section>
+
+            <section id="hero-section" class="panel">
+              <div class="panel-header">
+                <p class="eyebrow">Hero</p>
+                <h2>Top Section</h2>
+              </div>
+              <div class="field-grid two-up">
+                <label class="field">
+                  <span>Kicker</span>
+                  <input id="hero-kicker" type="text" />
+                </label>
+                <label class="field">
+                  <span>Main Title</span>
+                  <input id="hero-title" type="text" />
+                </label>
+                <label class="field field-wide">
+                  <span>Hero Copy</span>
+                  <textarea id="hero-copy" rows="4"></textarea>
+                </label>
+                <label class="field">
+                  <span>Primary Button</span>
+                  <input id="hero-primaryLabel" type="text" />
+                </label>
+                <label class="field">
+                  <span>Primary Button Link</span>
+                  <input id="hero-primaryHref" type="text" />
+                </label>
+                <label class="field">
+                  <span>Secondary Button</span>
+                  <input id="hero-secondaryLabel" type="text" />
+                </label>
+                <div class="field">
+                  <span>Hero Video Path</span>
+                  <div class="media-control" data-kind="video">
+                    <input id="hero-video" type="text" />
+                    <div class="media-actions">
+                      <button class="button button-ghost button-small" type="button" data-action="import-media">Import File</button>
+                      <button class="button button-ghost button-small" type="button" data-action="refresh-preview">Refresh Preview</button>
+                    </div>
+                    <div class="media-preview" data-preview></div>
+                  </div>
+                </div>
+                <div class="field">
+                  <span>Hero Poster Path</span>
+                  <div class="media-control" data-kind="image">
+                    <input id="hero-poster" type="text" />
+                    <div class="media-actions">
+                      <button class="button button-ghost button-small" type="button" data-action="import-media">Import File</button>
+                      <button class="button button-ghost button-small" type="button" data-action="refresh-preview">Refresh Preview</button>
+                    </div>
+                    <div class="media-preview" data-preview></div>
+                  </div>
+                </div>
+              </div>
+              <div class="repeater-wrap">
+                <div class="repeater-header">
+                  <div>
+                    <p class="eyebrow">Hero Stats</p>
+                    <p class="helper">Small stat cards under the hero buttons.</p>
+                  </div>
+                  <button id="add-hero-stat" class="button button-ghost button-small" type="button">Add Stat</button>
+                </div>
+                <div id="hero-stats-list" class="repeater-list"></div>
+              </div>
+              <div class="repeater-wrap">
+                <div class="repeater-header">
+                  <div>
+                    <p class="eyebrow">Ribbon Lines</p>
+                    <p class="helper">The short highlight bars below the hero.</p>
+                  </div>
+                  <button id="add-ribbon-item" class="button button-ghost button-small" type="button">Add Ribbon Item</button>
+                </div>
+                <div id="ribbon-list" class="repeater-list"></div>
+              </div>
+            </section>
+
+            <section id="about-section" class="panel">
+              <div class="panel-header">
+                <p class="eyebrow">About</p>
+                <h2>Story Section</h2>
+              </div>
+              <div class="field-grid">
+                <label class="field">
+                  <span>About Title</span>
+                  <input id="about-title" type="text" />
+                </label>
+                <label class="field">
+                  <span>About Copy</span>
+                  <textarea id="about-copy" rows="4"></textarea>
+                </label>
+                <label class="field">
+                  <span>Quote</span>
+                  <textarea id="about-quote" rows="3"></textarea>
+                </label>
+              </div>
+            </section>
+
+            <section id="programs-section" class="panel">
+              <div class="repeater-header">
+                <div>
+                  <p class="eyebrow">Programs</p>
+                  <h2>Program Cards</h2>
+                </div>
+                <button id="add-program" class="button button-ghost button-small" type="button">Add Program</button>
+              </div>
+              <div id="programs-list" class="repeater-list"></div>
+            </section>
+
+            <section id="recruiting-section" class="panel">
+              <div class="panel-header">
+                <p class="eyebrow">Recruiting</p>
+                <h2>Trust Section</h2>
+              </div>
+              <div class="field-grid">
+                <label class="field">
+                  <span>Section Title</span>
+                  <input id="recruiting-title" type="text" />
+                </label>
+                <label class="field">
+                  <span>Section Copy</span>
+                  <textarea id="recruiting-copy" rows="4"></textarea>
+                </label>
+              </div>
+              <div class="repeater-wrap">
+                <div class="repeater-header">
+                  <div>
+                    <p class="eyebrow">Bullet Points</p>
+                    <p class="helper">Short reasons or benefits.</p>
+                  </div>
+                  <button id="add-recruiting-point" class="button button-ghost button-small" type="button">Add Point</button>
+                </div>
+                <div id="recruiting-points-list" class="repeater-list"></div>
+              </div>
+            </section>
+
+            <section id="gallery-section" class="panel">
+              <div class="repeater-header">
+                <div>
+                  <p class="eyebrow">Gallery</p>
+                  <h2>Media Cards</h2>
+                </div>
+                <button id="add-gallery-item" class="button button-ghost button-small" type="button">Add Gallery Item</button>
+              </div>
+              <div id="gallery-list" class="repeater-list"></div>
+            </section>
+
+            <section id="timeline-section" class="panel">
+              <div class="repeater-header">
+                <div>
+                  <p class="eyebrow">Timeline</p>
+                  <h2>Season Flow</h2>
+                </div>
+                <button id="add-timeline-item" class="button button-ghost button-small" type="button">Add Timeline Item</button>
+              </div>
+              <div id="timeline-list" class="repeater-list"></div>
+            </section>
+
+            <section id="contact-section" class="panel">
+              <div class="panel-header">
+                <p class="eyebrow">Contact</p>
+                <h2>Call To Action</h2>
+              </div>
+              <div class="field-grid two-up">
+                <label class="field field-wide">
+                  <span>Contact Title</span>
+                  <input id="contact-title" type="text" />
+                </label>
+                <label class="field field-wide">
+                  <span>Contact Copy</span>
+                  <textarea id="contact-copy" rows="4"></textarea>
+                </label>
+                <label class="field">
+                  <span>Email Button Label</span>
+                  <input id="contact-emailLabel" type="text" />
+                </label>
+                <label class="field">
+                  <span>Email Link</span>
+                  <input id="contact-emailHref" type="text" />
+                </label>
+                <label class="field">
+                  <span>Facebook Button Label</span>
+                  <input id="contact-facebookLabel" type="text" />
+                </label>
+                <label class="field">
+                  <span>Facebook Link</span>
+                  <input id="contact-facebookHref" type="text" />
+                </label>
+              </div>
+            </section>
+
+            <section id="footer-section" class="panel">
+              <div class="panel-header">
+                <p class="eyebrow">Footer</p>
+                <h2>Footer And Reference Links</h2>
+              </div>
+              <div class="field-grid two-up">
+                <label class="field field-wide">
+                  <span>Footer Copy</span>
+                  <textarea id="footer-copy" rows="3"></textarea>
+                </label>
+                <label class="field">
+                  <span>Reference Link Label</span>
+                  <input id="references-facebookLabel" type="text" />
+                </label>
+                <label class="field">
+                  <span>Reference Link URL</span>
+                  <input id="references-facebookHref" type="text" />
+                </label>
+              </div>
+            </section>
+          </form>
+        </div>
+      </main>
+    </div>
+
+    <template id="string-item-template">
+      <div class="repeater-item">
+        <label class="field">
+          <span>Item</span>
+          <input type="text" data-field="value" />
+        </label>
+        <button class="icon-button" type="button" data-action="remove">Remove</button>
+      </div>
+    </template>
+
+    <template id="hero-stat-template">
+      <div class="repeater-item repeater-item-grid">
+        <label class="field">
+          <span>Value</span>
+          <input type="text" data-field="value" />
+        </label>
+        <label class="field">
+          <span>Label</span>
+          <input type="text" data-field="label" />
+        </label>
+        <button class="icon-button" type="button" data-action="remove">Remove</button>
+      </div>
+    </template>
+
+    <template id="program-template">
+      <div class="repeater-item repeater-item-grid">
+        <label class="field">
+          <span>Title</span>
+          <input type="text" data-field="title" />
+        </label>
+        <label class="field">
+          <span>Meta</span>
+          <input type="text" data-field="meta" />
+        </label>
+        <label class="field field-wide">
+          <span>Copy</span>
+          <textarea rows="3" data-field="copy"></textarea>
+        </label>
+        <button class="icon-button" type="button" data-action="remove">Remove</button>
+      </div>
+    </template>
+
+    <template id="gallery-template">
+      <div class="repeater-item repeater-item-grid">
+        <label class="field">
+          <span>Title</span>
+          <input type="text" data-field="title" />
+        </label>
+        <div class="field">
+          <span>Image Path</span>
+          <div class="media-control" data-kind="image">
+            <input type="text" data-field="image" />
+            <div class="media-actions">
+              <button class="button button-ghost button-small" type="button" data-action="import-media">Import File</button>
+              <button class="button button-ghost button-small" type="button" data-action="refresh-preview">Refresh Preview</button>
+            </div>
+            <div class="media-preview" data-preview></div>
+          </div>
+        </div>
+        <label class="field field-wide">
+          <span>Copy</span>
+          <textarea rows="3" data-field="copy"></textarea>
+        </label>
+        <button class="icon-button" type="button" data-action="remove">Remove</button>
+      </div>
+    </template>
+
+    <template id="timeline-template">
+      <div class="repeater-item repeater-item-grid">
+        <label class="field">
+          <span>Date</span>
+          <input type="text" data-field="date" />
+        </label>
+        <label class="field">
+          <span>Title</span>
+          <input type="text" data-field="title" />
+        </label>
+        <label class="field field-wide">
+          <span>Copy</span>
+          <textarea rows="3" data-field="copy"></textarea>
+        </label>
+        <button class="icon-button" type="button" data-action="remove">Remove</button>
+      </div>
+    </template>
+
+    <script src="editor.js"></script>
+  </body>
+</html>

@@ -1,0 +1,125 @@
+{
+  "brand": {
+    "name": "Utah Flight",
+    "eyebrow": "Utah Volleyball Club",
+    "logo": "assets/media/utah-flight-facebook-logo.jpg",
+    "colors": {
+      "background": "#08111f",
+      "backgroundSoft": "#0f1d32",
+      "card": "#111f35",
+      "accent": "#f05a28",
+      "accentSoft": "#ffb487",
+      "text": "#f5f7fb",
+      "muted": "#9eb0ca"
+    }
+  },
+  "hero": {
+    "kicker": "Boys Club Volleyball In Utah",
+    "title": "Train With Purpose. Grow In Character. Rise Together.",
+    "copy": "Utah Flight is built for athletes who want disciplined training, fast development, and a club culture that feels intense, positive, and united.",
+    "primaryLabel": "Start Your Season",
+    "secondaryLabel": "View Programs",
+    "stats": [
+      {
+        "value": "01",
+        "label": "Easy content file to edit"
+      },
+      {
+        "value": "03",
+        "label": "Photo slots ready to replace"
+      },
+      {
+        "value": "HD",
+        "label": "Hero video space included"
+      }
+    ],
+    "video": "assets/media/hero-video.mp4",
+    "poster": "assets/media/Utah-Flight-2025-Logan-tournament-champs.JPEG"
+  },
+  "ribbon": [
+    "Competitive boys volleyball focus",
+    "Editable for camps, teams, and tournaments",
+    "Built to swap in your own media fast"
+  ],
+  "about": {
+    "title": "A sharp, modern club site with a bold sports look inspired by elite volleyball branding.",
+    "copy": "This first version uses the public Utah Flight Facebook logo reference and the page description as a starting point. Update the sections with your exact training model, coaches, venues, sponsors, and registration details whenever you're ready.",
+    "quote": "Utah Flight Volleyball Club is a competitive boys volleyball club for middle school and high school aged athletes."
+  },
+  "programs": [
+    {
+      "title": "Middle School Development",
+      "copy": "Use this card for younger training groups, skill academies, or pre-club sessions focused on fundamentals, confidence, and movement quality.",
+      "meta": "Ages 11-14"
+    },
+    {
+      "title": "High School Club Teams",
+      "copy": "Highlight your main club teams here with season expectations, practice structure, travel level, and what athletes can expect from the environment.",
+      "meta": "Ages 15-18"
+    },
+    {
+      "title": "Camps And Clinics",
+      "copy": "Feature short-format training events, summer clinics, positional sessions, or open gyms with quick signup links and rotating announcements.",
+      "meta": "Seasonal"
+    }
+  ],
+  "recruiting": {
+    "title": "Designed To Make Your Brand Feel Serious",
+    "copy": "The layout uses a strong hero, high-contrast sections, oversized type, and athletic motion cues to echo the confident club style you referenced while staying original and easy to maintain.",
+    "points": [
+      "Swap the logo by replacing one image file path.",
+      "Swap photos by editing the gallery array below.",
+      "Drop in an MP4 to turn on the hero video instantly.",
+      "Change colors site-wide from the brand section."
+    ]
+  },
+  "gallery": [
+    {
+      "title": "Facebook Logo Reference",
+      "copy": "Default branding reference pulled from the public Utah Flight Facebook page.",
+      "image": "assets/media/utah-flight-facebook-logo.jpg"
+    },
+    {
+      "title": "Hero Poster Placeholder",
+      "copy": "Replace this with a team photo, action shot, or event graphic.",
+      "image": "assets/media/hero-poster.svg"
+    },
+    {
+      "title": "Gallery Placeholder",
+      "copy": "Duplicate this card or add more entries as your media library grows.",
+      "image": "assets/media/gallery-placeholder.svg"
+    }
+  ],
+  "timeline": [
+    {
+      "date": "July",
+      "title": "Tryouts",
+      "copy": "Add registration links, venue notes, and team placement details."
+    },
+    {
+      "date": "August - December",
+      "title": "Club Season",
+      "copy": "Tournament Dates TBD"
+    },
+    {
+      "date": "Summer",
+      "title": "Camps And Skills Training",
+      "copy": "Promote camps, open gyms, and off-season development opportunities."
+    }
+  ],
+  "contact": {
+    "title": "Ready To Launch Your Custom Utah Flight Site?",
+    "copy": "Update the email, Facebook link, and call-to-action text below. If you want, we can also add coaches, calendars, registration forms, or recruiting profiles next.",
+    "emailLabel": "Update Email Link",
+    "emailHref": "mailto:info@utahflightvolleyball.com",
+    "facebookLabel": "Visit Facebook Page",
+    "facebookHref": "https://www.facebook.com/UtahFlightVolleyball/"
+  },
+  "footer": {
+    "copy": "Utah Flight - Fly Higher Together"
+  },
+  "references": {
+    "facebookLabel": "Utah Flight Facebook",
+    "facebookHref": "https://www.facebook.com/UtahFlightVolleyball/"
+  }
+}

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Utah Flight gallery placeholder</title>
+  <desc id="desc">Placeholder image for Utah Flight gallery slots.</desc>
+  <rect width="1200" height="900" fill="#0e1b2f" />
+  <rect x="70" y="70" width="1060" height="760" rx="30" fill="#12233c" stroke="#2f4569" />
+  <circle cx="240" cy="250" r="110" fill="#f05a28" opacity=".82" />
+  <path d="M140 700 L420 450 L620 620 L820 390 L1060 700" fill="none" stroke="#f5f7fb" stroke-opacity=".28" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" />
+  <text x="120" y="150" fill="#ffb487" font-family="Inter, Arial, sans-serif" font-size="30" letter-spacing="6">DROP IN YOUR OWN PHOTO</text>
+  <text x="120" y="800" fill="#f5f7fb" font-family="Barlow Condensed, Arial, sans-serif" font-size="120" font-weight="700">UTAH FLIGHT</text>
+</svg>
