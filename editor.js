@@ -34,9 +34,13 @@ const simpleBindings = [
   ["contact-emailHref", ["contact", "emailHref"]],
   ["contact-facebookLabel", ["contact", "facebookLabel"]],
   ["contact-facebookHref", ["contact", "facebookHref"]],
+  ["contact-instagramLabel", ["contact", "instagramLabel"]],
+  ["contact-instagramHref", ["contact", "instagramHref"]],
   ["footer-copy", ["footer", "copy"]],
   ["references-facebookLabel", ["references", "facebookLabel"]],
-  ["references-facebookHref", ["references", "facebookHref"]]
+  ["references-facebookHref", ["references", "facebookHref"]],
+  ["references-instagramLabel", ["references", "instagramLabel"]],
+  ["references-instagramHref", ["references", "instagramHref"]]
 ];
 
 const repeaters = {

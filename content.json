@@ -34,14 +34,14 @@
   
   "programs": [
     {
-      "title": "Middle School Development",
+      "title": "Boys Middle School Development",
       "copy": "Our middle school team is perfect for middle school aged kids wanting to develop more advanced skills and compete at an advanced level",
-      "meta": "Ages 12-14U"
+      "meta": "Boys Ages 12-14U"
     },
     {
-      "title": "High School Club Teams",
+      "title": "Boys High School Club Teams",
       "copy": "Our club teams compete well against the best in Utah. Our teams typically place in the highest bracket of the tournaments they play in.",
-      "meta": "Ages 14U-18U"
+      "meta": "Boys Ages 14U-18U"
     },
     {
       "title": "Girls Club",
@@ -53,18 +53,18 @@
 
   "gallery": [
     {
-      "title": "Salt City Boys Slay Tournament Champs (18s)",
-      "copy": "Utah Flight 18s - winners of 18u Salt City Boys Slay Tournament.",
+      "title": "Salt City Boys Slay Tournament Champs",
+      "copy": "Utah Flight 18s - winners of 18u Salt City Boys Slay Tournament 2025.",
       "image": "assets/media/Salt City Boys Slay Champs.jpeg"
     },
     {
       "title": "Mountain Peak Tournament Champs",
-      "copy": "Utah Flight 18s - winners of the Mountain Peak Tournament.",
+      "copy": "Utah Flight 18s - winners of the 2025 Mountain Peak Tournament.",
       "image": "assets/media/Utah Flight 2025 Mountain Peak tournament champs.JPEG"
     },
     {
       "title": "Vortex Tournament Runner Up",
-      "copy": "Runner-up finish photo from the 2025 Vortex 18 Open Tournament event.",
+      "copy": "Runner-up finish photo of Flight 18s from the 2025 Vortex 18 Open Tournament event.",
       "image": "assets/media/Utah Flight 2025 vortex runner up.JPEG"
     }
   ],
@@ -90,13 +90,17 @@
     "copy": "Contact us at Volleyballroof@gmail.com.  We would love to hear from you and what needs you have for volleyball here in the Eagle Mountain area." ,
     "emailHref": "mailto:volleyballfoof@gmail.com",
     "facebookLabel": "Visit Facebook Page",
-    "facebookHref": "https://www.facebook.com/UtahFlightVolleyball/"
+    "facebookHref": "https://www.facebook.com/UtahFlightVolleyball/",
+    "instagramLabel": "Visit Instagram",
+    "instagramHref": "https://www.instagram.com/utahflight_volleyballclub/"
   },
   "footer": {
     "copy": "Utah Flight - Fly Higher Together"
   },
   "references": {
     "facebookLabel": "Utah Flight Facebook",
-    "facebookHref": "https://www.facebook.com/UtahFlightVolleyball/"
+    "facebookHref": "https://www.facebook.com/UtahFlightVolleyball/",
+    "instagramLabel": "Utah Flight Instagram",
+    "instagramHref": "https://www.instagram.com/utahflight_volleyballclub/"
   }
 }

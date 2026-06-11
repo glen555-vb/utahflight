@@ -1,0 +1,240 @@
+:root {
+  --bg: #07101d;
+  --bg-soft: #0e1d31;
+  --card: #111f35;
+  --accent: #f05a28;
+  --accent-soft: #ffb487;
+  --text: #f5f7fb;
+  --muted: #9eb0ca;
+  --border: rgba(255, 255, 255, 0.12);
+  --shadow: 0 28px 80px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  background:
+    linear-gradient(125deg, rgba(240, 90, 40, 0.2), transparent 34rem),
+    linear-gradient(180deg, #06101d 0%, var(--bg) 48%, #040913 100%);
+  color: var(--text);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.container {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.coaches-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem min(3vw, 2rem);
+  border-bottom: 1px solid var(--border);
+  background: rgba(4, 10, 19, 0.76);
+  backdrop-filter: blur(16px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.brand img {
+  width: 54px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.16);
+}
+
+.brand-name,
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: "Barlow Condensed", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.brand-name {
+  font-size: 1.35rem;
+}
+
+.eyebrow,
+.kicker,
+.coach-role {
+  margin: 0;
+  color: var(--accent-soft);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.coaches-nav {
+  display: flex;
+  gap: 1.25rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.coaches-nav a:hover {
+  color: var(--text);
+}
+
+.coaches-hero {
+  padding: 6rem 0 4rem;
+}
+
+.coaches-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
+  gap: 2rem;
+  align-items: end;
+}
+
+h1 {
+  max-width: 12ch;
+  margin-top: 0.4rem;
+  font-size: clamp(4rem, 9vw, 7rem);
+  line-height: 0.92;
+}
+
+h2 {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  line-height: 0.96;
+}
+
+h3 {
+  font-size: clamp(1.65rem, 3vw, 2.2rem);
+  line-height: 1;
+}
+
+p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.coaches-hero p:not(.kicker),
+.section-heading p {
+  max-width: 64ch;
+}
+
+.coach-feature,
+.coach-card {
+  border: 1px solid var(--border);
+  background: rgba(17, 31, 53, 0.86);
+  box-shadow: var(--shadow);
+}
+
+.coach-feature {
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+.coach-feature img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.section {
+  padding: 5rem 0;
+}
+
+.section-heading {
+  margin-bottom: 1.5rem;
+}
+
+.coach-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.coach-card {
+  overflow: hidden;
+  border-radius: 22px;
+}
+
+.coach-card img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--bg-soft);
+}
+
+.coach-card-body {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.2rem;
+}
+
+.coach-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.coach-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+@media (max-width: 980px) {
+  .coaches-nav {
+    display: none;
+  }
+
+  .coaches-hero-grid,
+  .coach-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .coaches-topbar {
+    padding: 0.9rem 1rem;
+  }
+
+  h1 {
+    max-width: 100%;
+    font-size: clamp(3rem, 16vw, 4.8rem);
+  }
+
+  .section {
+    padding: 4rem 0;
+  }
+}

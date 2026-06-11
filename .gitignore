@@ -6,3 +6,7 @@ Thumbs.db
 
 # Python local server cache
 __pycache__/
+
+# Local file-backed app data
+data/
+uploads/

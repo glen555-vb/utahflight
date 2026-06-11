@@ -140,6 +140,8 @@ function fillBasics() {
   setHref("contact-email", contact.emailHref);
   setText("contact-facebook", contact.facebookLabel || "Facebook");
   setHref("contact-facebook", contact.facebookHref);
+  setText("contact-instagram", contact.instagramLabel || "Instagram");
+  setHref("contact-instagram", contact.instagramHref);
 
   setText("footer-name", content.brand.name);
   setText("footer-copy", content.footer?.copy);

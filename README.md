@@ -8,6 +8,8 @@ This is a standalone editable website for `Utah Flight Volleyball Club`.
   Change club name, text, colors, links, schedule items, program cards, and media file paths.
 - `editor.html`
   Open the visual editor if you want to update the content through forms instead of editing JSON directly.
+- `coaches.js`
+  Add coach/staff names, roles, bios, team tags, and photo paths for the Coaches page.
 - `assets/media/`
   Replace the logo, hero video, poster, and gallery images with your own files.
 - `styles.css`
@@ -24,24 +26,26 @@ This is a standalone editable website for `Utah Flight Volleyball Club`.
 From this folder run:
 
 ```bash
-./serve.sh
+PORT=8001 node server.js
 ```
 
-Or run:
+For a static-only preview, you can still run:
 
 ```bash
 python3 -m http.server 8000
 ```
 
+The recruiting MaxPreps import needs `node server.js` because it uses `/api/import-maxpreps`.
+
 Then open:
 
-`http://localhost:8000`
+`http://localhost:8001`
 
 ## Visual Editor
 
 Open:
 
-`http://localhost:8000/editor.html`
+`http://localhost:8001/editor.html`
 
 What it does:
 
@@ -61,6 +65,70 @@ Recommended workflow:
 5. Click `Open Draft Preview` to review them.
 6. Click `Download content.json` or `Save To File`.
 7. Replace the site's `content.json` with the new one if needed.
+
+## Page Guide
+
+- `index.html`
+  Main Utah Flight site.
+- `coaches.html`
+  Public coaches and staff page. Edit entries in `coaches.js`.
+- `recruiting.html`
+  Public recruiting page with approved athlete profile cards.
+- `recruiting-submit.html`
+  Public one-athlete submission form. Submissions go to admin approval and can include an uploaded athlete photo plus highlight links.
+- `admin.html`
+  Focused admin login, submission list, and review/approval page.
+- `recruiting-dashboard.html`
+  Admin recruiting dashboard for review, edits, approval, and profile publishing.
+- `recruiting-seed.json`
+  Approved recruiting profiles that should ship with the site on a fresh deploy. Sam Davis is seeded here.
+
+## Recruiting Login
+
+The recruiting dashboard has a temporary file-backed login and approval flow.
+
+Local default logins:
+
+- Admin:
+  `admin` / `flight-admin`
+- Player or coach:
+  `player` / `flight-player`
+
+For Railway, set these environment variables before using it publicly:
+
+```bash
+ADMIN_USERNAME
+ADMIN_PASSWORD
+PLAYER_USERNAME
+PLAYER_PASSWORD
+```
+
+Public submissions are saved as pending without a login. Admin approval publishes the profile.
+
+## Google Login
+
+Google login is supported through server-side OAuth. Create a Google Cloud OAuth client with application type `Web application`, then set these environment variables:
+
+```bash
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
+GOOGLE_REDIRECT_URI
+GOOGLE_ADMIN_EMAILS
+```
+
+Local redirect URI:
+
+```text
+http://localhost:8002/auth/google/callback
+```
+
+Production redirect URI:
+
+```text
+https://utahflight.com/auth/google/callback
+```
+
+`GOOGLE_ADMIN_EMAILS` is a comma-separated list of Google accounts that should become admins. Other Google accounts can submit player profiles as player/coach users.
 
 ## Media Swap Guide
 

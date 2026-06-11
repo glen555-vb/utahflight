@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utah Flight Recruiting Dashboard</title>
+    <meta
+      name="description"
+      content="Utah Flight recruiting dashboard and player profile pages."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="recruiting.css" />
+  </head>
+  <body>
+    <div class="recruiting-shell">
+      <header class="recruiting-topbar">
+        <a class="brand" href="index.html#home" aria-label="Utah Flight home">
+          <img src="assets/media/utah-flight-facebook-logo.jpg" alt="Utah Flight logo" />
+          <div>
+            <p class="eyebrow">Utah Flight</p>
+            <p class="brand-name">Recruiting</p>
+          </div>
+        </a>
+        <nav class="recruiting-nav">
+          <a href="index.html">Main Site</a>
+          <a href="recruiting.html">Recruiting Preview</a>
+          <a href="#dashboard">Dashboard</a>
+          <a href="#login">Login</a>
+          <a href="#submit">Submit Player</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="recruiting-hero">
+          <div class="container recruiting-hero-grid">
+            <div>
+              <p class="kicker">Recruiting Dashboard</p>
+              <h1>Player profiles built for college coaches.</h1>
+              <p>
+                Showcase measurable information, film, academics, contact details, and verified volleyball stats in one clean profile.
+              </p>
+              <div class="hero-actions">
+                <a class="button" href="#login">Login</a>
+                <a class="button" href="#submit">Add Player Info</a>
+                <a class="button button-ghost" href="#dashboard">View Profiles</a>
+              </div>
+            </div>
+            <div class="summary-panel">
+              <p class="panel-label">Recruiter View</p>
+              <div class="summary-row">
+                <strong id="profile-count">0</strong>
+                <span>active profiles</span>
+              </div>
+              <div class="summary-row">
+                <strong id="grad-years">0</strong>
+                <span>graduation years</span>
+              </div>
+              <div class="summary-row">
+                <strong id="video-count">0</strong>
+                <span>film links</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="dashboard" class="section">
+          <div class="container">
+            <div class="section-heading">
+              <p class="kicker">Dashboard</p>
+              <h2>Recruitable Athletes</h2>
+            </div>
+            <div class="toolbar">
+              <label>
+                <span>Search</span>
+                <input id="search-input" type="search" placeholder="Name, school, position" />
+              </label>
+              <label>
+                <span>Grad Year</span>
+                <select id="year-filter">
+                  <option value="all">All years</option>
+                </select>
+              </label>
+              <label>
+                <span>Position</span>
+                <select id="position-filter">
+                  <option value="all">All positions</option>
+                </select>
+              </label>
+            </div>
+            <div id="player-grid" class="player-grid"></div>
+          </div>
+        </section>
+
+        <section id="login" class="section section-dark">
+          <div class="container auth-layout">
+            <div class="section-heading">
+              <p class="kicker">Login</p>
+              <h2>Submit Or Approve Profiles</h2>
+              <p>
+                Players and coaches can submit profile updates. Admins approve new or changed profiles before they publish.
+              </p>
+            </div>
+            <div class="auth-panel">
+              <a class="button google-button" href="/auth/google">Continue With Google</a>
+              <div class="auth-divider"><span>or</span></div>
+              <form id="login-form" class="login-form">
+                <label>
+                  <span>Username</span>
+                  <input name="username" type="text" autocomplete="username" required />
+                </label>
+                <label>
+                  <span>Password</span>
+                  <input name="password" type="password" autocomplete="current-password" required />
+                </label>
+                <button class="button" type="submit">Login</button>
+              </form>
+              <div id="session-panel" class="session-panel" hidden>
+                <p class="panel-label">Signed In</p>
+                <h3 id="session-user"></h3>
+                <p id="session-copy"></p>
+                <button id="logout-button" class="button button-ghost" type="button">Logout</button>
+              </div>
+              <p id="login-status" class="form-status" aria-live="polite"></p>
+            </div>
+          </div>
+        </section>
+
+        <section id="admin-review" class="section" hidden>
+          <div class="container">
+            <div class="section-heading">
+              <p class="kicker">Admin</p>
+              <h2>Pending Profile Review</h2>
+              <p>Approve a player profile to publish it to the recruiting dashboard.</p>
+            </div>
+            <div id="pending-grid" class="review-grid"></div>
+          </div>
+        </section>
+
+        <section id="profile" class="section section-dark" hidden>
+          <div class="container">
+            <div id="profile-view"></div>
+          </div>
+        </section>
+
+        <section id="submit" class="section">
+          <div class="container form-layout">
+            <div class="section-heading">
+              <p class="kicker">Player Submission</p>
+              <h2>Add Or Update A Profile</h2>
+              <p>
+                Login first, then submit player details. Player and coach submissions go to the admin approval queue before publishing.
+              </p>
+            </div>
+            <form id="player-form" class="submission-form">
+              <div class="form-section import-section">
+                <p class="form-label">Import From MaxPreps</p>
+                <div class="import-row">
+                  <label>
+                    <span>MaxPreps Player URL</span>
+                    <input id="maxpreps-import-url" type="url" placeholder="https://www.maxpreps.com/..." />
+                  </label>
+                  <button id="maxpreps-import-button" class="button" type="button">Import Stats</button>
+                </div>
+                <p id="import-status" class="form-status" aria-live="polite"></p>
+              </div>
+
+              <div class="form-section">
+                <p class="form-label">Player Details</p>
+                <div class="field-grid">
+                  <label>
+                    <span>Player Name</span>
+                    <input name="name" required type="text" />
+                  </label>
+                  <label>
+                    <span>Grad Year</span>
+                    <input name="gradYear" required type="number" min="2026" max="2035" />
+                  </label>
+                  <label>
+                    <span>School</span>
+                    <input name="school" type="text" />
+                  </label>
+                  <label>
+                    <span>Club Team</span>
+                    <input name="team" type="text" value="Utah Flight" />
+                  </label>
+                  <label>
+                    <span>Positions</span>
+                    <input name="positions" type="text" placeholder="OH, DS" />
+                  </label>
+                  <label>
+                    <span>Jersey</span>
+                    <input name="jersey" type="text" />
+                  </label>
+                  <label>
+                    <span>Height</span>
+                    <input name="height" type="text" placeholder="6'2&quot;" />
+                  </label>
+                  <label>
+                    <span>Weight</span>
+                    <input name="weight" type="text" placeholder="175 lbs" />
+                  </label>
+                  <label>
+                    <span>GPA</span>
+                    <input name="gpa" type="text" />
+                  </label>
+                  <label>
+                    <span>Dominant Hand</span>
+                    <input name="hand" type="text" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <p class="form-label">Contact And Recruiting</p>
+                <div class="field-grid">
+                  <label>
+                    <span>Player Email</span>
+                    <input name="email" type="email" />
+                  </label>
+                  <label>
+                    <span>Coach Email</span>
+                    <input name="coachEmail" type="email" />
+                  </label>
+                  <label>
+                    <span>Phone</span>
+                    <input name="phone" type="tel" />
+                  </label>
+                  <label>
+                    <span>Location</span>
+                    <input name="location" type="text" placeholder="Eagle Mountain, UT" />
+                  </label>
+                  <label class="field-wide">
+                    <span>Recruiting Notes</span>
+                    <textarea name="bio" rows="4"></textarea>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <p class="form-label">Film And Stats</p>
+                <div class="field-grid">
+                  <input name="id" type="hidden" />
+                  <input name="seasonsJson" type="hidden" />
+                  <label>
+                    <span>Profile Photo URL</span>
+                    <input name="photo" type="url" />
+                  </label>
+                  <label>
+                    <span>Highlight Video URL 1</span>
+                    <input name="highlightUrl" type="url" />
+                  </label>
+                  <label>
+                    <span>Highlight Video URL 2</span>
+                    <input name="highlightUrl2" type="url" />
+                  </label>
+                  <label>
+                    <span>Highlight Video URL 3</span>
+                    <input name="highlightUrl3" type="url" />
+                  </label>
+                  <label>
+                    <span>Highlight Video URL 4</span>
+                    <input name="highlightUrl4" type="url" />
+                  </label>
+                  <label>
+                    <span>Highlight Video URL 5</span>
+                    <input name="highlightUrl5" type="url" />
+                  </label>
+                  <label>
+                    <span>Hudl URL</span>
+                    <input name="hudlUrl" type="url" />
+                  </label>
+                  <label>
+                    <span>MaxPreps URL</span>
+                    <input name="maxPrepsUrl" type="url" />
+                  </label>
+                  <label>
+                    <span>Kills</span>
+                    <input name="kills" type="number" min="0" />
+                  </label>
+                  <label>
+                    <span>Digs</span>
+                    <input name="digs" type="number" min="0" />
+                  </label>
+                  <label>
+                    <span>Assists</span>
+                    <input name="assists" type="number" min="0" />
+                  </label>
+                  <label>
+                    <span>Blocks</span>
+                    <input name="blocks" type="number" min="0" />
+                  </label>
+                  <label>
+                    <span>Aces</span>
+                    <input name="aces" type="number" min="0" />
+                  </label>
+                  <label>
+                    <span>Hitting %</span>
+                    <input name="hitting" type="text" placeholder=".215" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button class="button" type="submit">Save Profile Draft</button>
+                <button class="button button-ghost" type="reset">Clear</button>
+              </div>
+              <p id="form-status" class="form-status" aria-live="polite"></p>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="recruiting.js"></script>
+  </body>
+</html>

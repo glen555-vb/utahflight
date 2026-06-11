@@ -1,0 +1,55 @@
+{
+  "profiles": [
+    {
+      "id": "sam-davis-2026",
+      "name": "Sam Davis",
+      "gradYear": "2026",
+      "school": "Cedar Valley High School",
+      "team": "Utah Flight",
+      "location": "Eagle Mountain, UT",
+      "jersey": "3",
+      "positions": ["OH", "DS"],
+      "height": "5'10\"",
+      "weight": "160 lbs",
+      "gpa": "3.9",
+      "hand": "Right",
+      "email": "jazzbball3@gmail.com",
+      "coachEmail": "volleyballroof@gmail.com",
+      "phone": "",
+      "photo": "assets/media/sam-davis-maxpreps-profile.jpg",
+      "highlightUrl": "http://www.hudl.com/v/2TdW3B",
+      "highlightUrls": [
+        "http://www.hudl.com/v/2TdW3B",
+        "http://www.hudl.com/v/2Nvusr",
+        "http://www.hudl.com/v/2T6Kj6",
+        "http://www.hudl.com/v/2TtbP4",
+        "http://www.hudl.com/v/2TtaUQ"
+      ],
+      "hudlUrl": "https://www.hudl.com/profile/18922745/Sam-Davis",
+      "maxPrepsUrl": "https://www.maxpreps.com/ut/eagle-mountain/cedar-valley-aviators/athletes/sam-davis/?careerid=uvm0k38lv1pue",
+      "bio": "Sam has a 3.9 GPA, and enjoys working out at the gym as well as playing indoor and outdoor volleyball.",
+      "stats": {
+        "kills": "93",
+        "digs": "178",
+        "assists": "17",
+        "blocks": "17",
+        "aces": "24",
+        "hitting": ".172"
+      },
+      "seasons": [
+        {
+          "season": "Current",
+          "sp": "-",
+          "kills": "93",
+          "digs": "178",
+          "aces": "24",
+          "blocks": "17"
+        }
+      ],
+      "status": "approved",
+      "submittedBy": "seed profile",
+      "submittedAt": "2026-06-11T00:00:00.000Z",
+      "updatedAt": "2026-06-11T00:00:00.000Z"
+    }
+  ]
+}

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Submit Athlete Profile | Utah Flight</title>
+    <meta
+      name="description"
+      content="Submit one Utah Flight athlete profile for recruiting review."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="recruiting.css" />
+  </head>
+  <body>
+    <div class="recruiting-shell">
+      <header class="recruiting-topbar">
+        <a class="brand" href="index.html#home" aria-label="Utah Flight home">
+          <img src="assets/media/utah-flight-facebook-logo.jpg" alt="Utah Flight logo" />
+          <div>
+            <p class="eyebrow">Utah Flight</p>
+            <p class="brand-name">Recruiting</p>
+          </div>
+        </a>
+        <nav class="recruiting-nav">
+          <a href="index.html">Main Site</a>
+          <a href="recruiting.html">Recruiting</a>
+          <a href="coaches.html">Coaches</a>
+          <a href="admin.html">Admin</a>
+          <a href="index.html#contact">Contact</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="recruiting-hero submit-hero">
+          <div class="container submit-hero-inner">
+            <p class="kicker">Athlete Submission</p>
+            <h1>Submit Athlete Profile.</h1>
+            <p>
+              Add the player details, recruiting contact information, film links, and stats for one athlete. Utah Flight will review the submission before anything is published.
+            </p>
+          </div>
+        </section>
+
+        <section id="submit" class="section submit-only-section">
+          <div class="container submit-page-layout">
+            <div class="submission-intro">
+              <p class="kicker">Profile Form</p>
+              <h2>Get Noticed</h2>
+              <p>
+                Use the MaxPreps import when available, then review and fill in anything missing. A coach or admin can approve and edit the profile later.
+              </p>
+              <a class="admin-review-link" href="admin.html">Admin review login</a>
+            </div>
+
+            <form id="player-form" class="submission-form">
+              <div class="form-section import-section">
+                <p class="form-label">Import From MaxPreps</p>
+                <div class="import-row">
+                  <label>
+                    <span>MaxPreps Player URL</span>
+                    <input id="maxpreps-import-url" type="url" placeholder="https://www.maxpreps.com/..." />
+                  </label>
+                  <button id="maxpreps-import-button" class="button" type="button">Import Stats</button>
+                </div>
+                <p id="import-status" class="form-status" aria-live="polite"></p>
+              </div>
+
+              <div class="form-section">
+                <p class="form-label">Player Details</p>
+                <div class="field-grid">
+                  <label>
+                    <span>Player Name</span>
+                    <input name="name" required type="text" />
+                  </label>
+                  <label>
+                    <span>Grad Year</span>
+                    <input name="gradYear" required type="number" min="2026" max="2035" />
+                  </label>
+                  <label>
+                    <span>School</span>
+                    <input name="school" type="text" />
+                  </label>
+                  <label>
+                    <span>Club Team</span>
+                    <input name="team" type="text" value="Utah Flight" />
+                  </label>
+                  <label>
+                    <span>Positions</span>
+                    <input name="positions" type="text" placeholder="OH, DS" />
+                  </label>
+                  <label>
+                    <span>Jersey</span>
+                    <input name="jersey" type="text" />
+                  </label>
+                  <label>
+                    <span>Height</span>
+                    <input name="height" type="text" placeholder="6'2&quot;" />
+                  </label>
+                  <label>
+                    <span>Weight</span>
+                    <input name="weight" type="text" placeholder="175 lbs" />
+                  </label>
+                  <label>
+                    <span>GPA</span>
+                    <input name="gpa" type="text" />
+                  </label>
+                  <label>
+                    <span>Dominant Hand</span>
+                    <input name="hand" type="text" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <p class="form-label">Contact And Recruiting</p>
+                <div class="field-grid">
+                  <label>
+                    <span>Player Email</span>
+                    <input name="email" type="email" />
+                  </label>
+                  <label>
+                    <span>Coach Email</span>
+                    <input name="coachEmail" type="email" />
+                  </label>
+                  <label>
+                    <span>Phone</span>
+                    <input name="phone" type="tel" />
+                  </label>
+                  <label>
+                    <span>Location</span>
+                    <input name="location" type="text" placeholder="Eagle Mountain, UT" />
+                  </label>
+                  <label class="field-wide">
+                    <span>Recruiting Notes</span>
+                    <textarea name="bio" rows="4"></textarea>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <p class="form-label">Film And Stats</p>
+                <div class="field-grid">
+                  <input name="id" type="hidden" />
+                  <input name="seasonsJson" type="hidden" />
+                  <label>
+                    <span>Profile Photo URL</span>
+                    <input name="photo" type="url" />
+                  </label>
+                  <label>
+                    <span>Upload Profile Photo</span>
+                    <input id="profile-photo-file" type="file" accept="image/jpeg,image/png,image/webp" />
+                  </label>
+                  <label>
+                    <span>Highlight Video URL 1</span>
+                    <input name="highlightUrl" type="url" />
+                  </label>
+                  <label>
+                    <span>Highlight Video URL 2</span>
+                    <input name="highlightUrl2" type="url" />
+                  </label>
+                  <label>
+                    <span>Highlight Video URL 3</span>
+                    <input name="highlightUrl3" type="url" />
+                  </label>
+                  <label>
+                    <span>Highlight Video URL 4</span>
+                    <input name="highlightUrl4" type="url" />
+                  </label>
+                  <label>
+                    <span>Highlight Video URL 5</span>
+                    <input name="highlightUrl5" type="url" />
+                  </label>
+                  <label>
+                    <span>Hudl URL</span>
+                    <input name="hudlUrl" type="url" />
+                  </label>
+                  <label>
+                    <span>MaxPreps URL</span>
+                    <input name="maxPrepsUrl" type="url" />
+                  </label>
+                  <label>
+                    <span>Kills</span>
+                    <input name="kills" type="number" min="0" />
+                  </label>
+                  <label>
+                    <span>Digs</span>
+                    <input name="digs" type="number" min="0" />
+                  </label>
+                  <label>
+                    <span>Assists</span>
+                    <input name="assists" type="number" min="0" />
+                  </label>
+                  <label>
+                    <span>Blocks</span>
+                    <input name="blocks" type="number" min="0" />
+                  </label>
+                  <label>
+                    <span>Aces</span>
+                    <input name="aces" type="number" min="0" />
+                  </label>
+                  <label>
+                    <span>Hitting %</span>
+                    <input name="hitting" type="text" placeholder=".215" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button class="button" type="submit">Submit For Review</button>
+                <button class="button button-ghost" type="reset">Clear</button>
+              </div>
+              <p id="upload-status" class="form-status" aria-live="polite"></p>
+              <p id="form-status" class="form-status" aria-live="polite"></p>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="recruiting-submit.js"></script>
+  </body>
+</html>
