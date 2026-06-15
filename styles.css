@@ -456,8 +456,7 @@ h3 {
 }
 
 @media (max-width: 960px) {
-  .nav,
-  .topbar .button-small {
+  .nav {
     display: none;
   }
 
