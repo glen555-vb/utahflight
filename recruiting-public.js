@@ -87,7 +87,12 @@ function renderVideo(player) {
     return `<iframe src="${escapeHtml(embedUrl)}" title="${escapeHtml(player.name)} highlight video" allowfullscreen></iframe>${renderHighlightLinks(urls)}`;
   }
 
-  return `<a class="button" href="${escapeHtml(url)}" target="_blank" rel="noreferrer">Open Highlight Film</a>${renderHighlightLinks(urls)}`;
+  return `
+    <div class="highlight-link-card">
+      <a class="button" href="${escapeHtml(url)}" target="_blank" rel="noreferrer">Open Highlight Film</a>
+      ${renderHighlightLinks(urls)}
+    </div>
+  `;
 }
 
 function renderSummary(players) {
@@ -157,6 +162,7 @@ function renderPlayerCards(players) {
 
 function renderProfile(player) {
   const stats = player.stats || {};
+  const statsLabel = stats.summary ? `Top Stats - ${stats.summary}` : "Top Stats";
   $("profile").hidden = false;
   $("profile-view").innerHTML = `
     <div class="profile-hero">
@@ -197,7 +203,7 @@ function renderProfile(player) {
     </div>
     <div class="profile-grid">
       <div class="profile-panel">
-        <p class="panel-label">Top Stats</p>
+        <p class="panel-label">${escapeHtml(statsLabel)}</p>
         <div class="profile-stats">
           <div class="stat-card"><strong>${escapeHtml(stats.kills || "0")}</strong><span>Kills</span></div>
           <div class="stat-card"><strong>${escapeHtml(stats.digs || "0")}</strong><span>Digs</span></div>

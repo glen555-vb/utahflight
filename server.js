@@ -195,7 +195,10 @@ function normalizeProfile(profile, status, submittedBy) {
     hudlUrl: safeProfile.hudlUrl || "",
     maxPrepsUrl: safeProfile.maxPrepsUrl || "",
     bio: safeProfile.bio || "",
-    stats: safeProfile.stats || {},
+    stats: {
+      ...(safeProfile.stats || {}),
+      summary: safeProfile.stats?.summary || ""
+    },
     seasons: Array.isArray(safeProfile.seasons) ? safeProfile.seasons : [],
     status,
     submittedBy,

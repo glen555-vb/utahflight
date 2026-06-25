@@ -157,6 +157,7 @@ function profileFromForm(form) {
     maxPrepsUrl: data.maxPrepsUrl,
     bio: data.bio,
     stats: {
+      summary: data.statsSummary,
       kills: data.kills || "0",
       digs: data.digs || "0",
       assists: data.assists || "0",
@@ -215,6 +216,7 @@ function fillForm(profile) {
   setField(form, "highlightUrl5", highlightUrls[4]);
   setField(form, "hudlUrl", profile.hudlUrl);
   setField(form, "maxPrepsUrl", profile.maxPrepsUrl);
+  setField(form, "statsSummary", stats.summary);
   setField(form, "kills", stats.kills);
   setField(form, "digs", stats.digs);
   setField(form, "assists", stats.assists);

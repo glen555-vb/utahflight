@@ -706,6 +706,11 @@ select option {
   aspect-ratio: 16 / 9;
 }
 
+.video-frame:has(.highlight-link-card) {
+  aspect-ratio: auto;
+  background: transparent;
+}
+
 .video-frame video,
 .video-frame iframe {
   width: 100%;
@@ -720,6 +725,20 @@ select option {
   gap: 0.65rem;
   padding: 0.9rem;
   background: rgba(2, 5, 10, 0.86);
+}
+
+.highlight-link-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background: rgba(2, 5, 10, 0.76);
+}
+
+.highlight-link-card .highlight-link-list {
+  padding: 0;
+  background: transparent;
 }
 
 .highlight-link-list a {

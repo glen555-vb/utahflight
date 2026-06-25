@@ -212,7 +212,12 @@ function renderVideo(player) {
     return `<iframe src="${escapeHtml(embedUrl)}" title="${escapeHtml(player.name)} highlight video" allowfullscreen></iframe>${renderHighlightLinks(urls)}`;
   }
 
-  return `<a class="button" href="${escapeHtml(url)}" target="_blank" rel="noreferrer">Open Highlight Film</a>${renderHighlightLinks(urls)}`;
+  return `
+    <div class="highlight-link-card">
+      <a class="button" href="${escapeHtml(url)}" target="_blank" rel="noreferrer">Open Highlight Film</a>
+      ${renderHighlightLinks(urls)}
+    </div>
+  `;
 }
 
 function renderSummary(players) {
@@ -332,6 +337,7 @@ function renderPlayerCard(player) {
 
 function renderProfile(player) {
   const stats = player.stats || {};
+  const statsLabel = stats.summary ? `Top Stats - ${stats.summary}` : "Top Stats";
   $("profile").hidden = false;
   $("profile-view").innerHTML = `
     <div class="profile-hero">
@@ -374,7 +380,7 @@ function renderProfile(player) {
 
     <div class="profile-grid">
       <div class="profile-panel">
-        <p class="panel-label">Top Stats</p>
+        <p class="panel-label">${escapeHtml(statsLabel)}</p>
         <div class="profile-stats">
           <div class="stat-card"><strong>${escapeHtml(stats.kills || "0")}</strong><span>Kills</span></div>
           <div class="stat-card"><strong>${escapeHtml(stats.digs || "0")}</strong><span>Digs</span></div>
@@ -453,6 +459,7 @@ function profileFromForm(form) {
     maxPrepsUrl: data.maxPrepsUrl,
     bio: data.bio,
     stats: {
+      summary: data.statsSummary,
       kills: data.kills || "0",
       digs: data.digs || "0",
       assists: data.assists || "0",
@@ -538,6 +545,7 @@ function fillFormFromProfile(profile) {
   setField(form, "highlightUrl4", highlightUrls[3]);
   setField(form, "highlightUrl5", highlightUrls[4]);
   setField(form, "maxPrepsUrl", profile.maxPrepsUrl);
+  setField(form, "statsSummary", stats.summary);
   setField(form, "kills", stats.kills);
   setField(form, "digs", stats.digs);
   setField(form, "assists", stats.assists);
