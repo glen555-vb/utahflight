@@ -90,7 +90,7 @@ The recruiting dashboard has a temporary file-backed login and approval flow.
 Local default logins:
 
 - Admin:
-  `admin` / `flight-admin`
+  `gldavis1111` / `TswanaIdaho1`
 - Player or coach:
   `player` / `flight-player`
 

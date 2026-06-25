@@ -13,8 +13,8 @@ const sessions = new Map();
 const oauthStates = new Map();
 const credentials = {
   admin: {
-    username: process.env.ADMIN_USERNAME || "admin",
-    password: process.env.ADMIN_PASSWORD || "flight-admin"
+    username: process.env.ADMIN_USERNAME || "gldavis1111",
+    password: process.env.ADMIN_PASSWORD || "TswanaIdaho1"
   },
   player: {
     username: process.env.PLAYER_USERNAME || "player",
