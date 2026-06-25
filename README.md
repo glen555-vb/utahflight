@@ -133,7 +133,7 @@ https://utahflight.com/auth/google/callback
 ## Media Swap Guide
 
 - Logo:
-  Replace `assets/media/utah-flight-facebook-logo.jpg` and keep the same filename, or change the `brand.logo` path in `content.json`.
+  Replace `assets/media/utah-flight-2026-logo.png` and keep the same filename, or change the `brand.logo` path in `content.json`.
 - Hero video:
   Add an MP4 named `assets/media/hero-video.mp4`. If the file is missing, the poster image still carries the section.
 - Hero poster:

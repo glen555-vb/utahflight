@@ -3,21 +3,21 @@ const coaches = [
     name: "Coach Name",
     role: "Club Director",
     teams: ["18s", "Program Lead"],
-    photo: "assets/media/utah-flight-facebook-logo.jpg",
+    photo: "assets/media/utah-flight-2026-logo.png",
     bio: "Add a short bio here about coaching background, volleyball experience, and what this person brings to Utah Flight."
   },
   {
     name: "Coach Name",
     role: "Head Coach",
     teams: ["High School Club"],
-    photo: "assets/media/utah-flight-facebook-logo.jpg",
+    photo: "assets/media/utah-flight-2026-logo.png",
     bio: "Use this space for a coach spotlight, coaching philosophy, certifications, playing background, or team responsibilities."
   },
   {
     name: "Staff Name",
     role: "Team Staff",
     teams: ["Operations", "Families"],
-    photo: "assets/media/utah-flight-facebook-logo.jpg",
+    photo: "assets/media/utah-flight-2026-logo.png",
     bio: "Add staff details here, including how this person supports athletes, coaches, tournaments, communication, or club operations."
   }
 ];
