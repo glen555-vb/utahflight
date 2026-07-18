@@ -17,8 +17,8 @@
     "kicker": "Boys Club Volleyball residing in Eagle Mountain, Utah",
     "title": "Train With Purpose. Build Character. Fly Higher Together.",
     "copy": "Utah Flight is built for athletes who want to compete with the best, develop skills, and a club culture that feels intense, positive, and united.",
-    "primaryLabel": "Tryout Interest",
-    "primaryHref": "https://forms.gle/cWSP4QoWLbQyVMMb9",
+    "primaryLabel": "Contact Us",
+    "primaryHref": "mailto:volleyballroof@gmail.com",
     "secondaryLabel": "View Programs",
     "stats": [
     
@@ -88,6 +88,7 @@
   "contact": {
     "title": "Volleyball is our passion.  We want to hear from you.",
     "copy": "Contact us at Volleyballroof@gmail.com.  We would love to hear from you and what needs you have for volleyball here in the Eagle Mountain area." ,
+    "emailLabel": "Contact Us",
     "emailHref": "mailto:volleyballroof@gmail.com",
     "facebookLabel": "Visit Facebook Page",
     "facebookHref": "https://www.facebook.com/UtahFlightVolleyball/",

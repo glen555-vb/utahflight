@@ -106,7 +106,6 @@ function fillBasics() {
   setText("brand-name", content.brand.name);
   setText("nav-cta", content.hero.primaryLabel);
   setHref("nav-cta", content.hero.primaryHref || "#contact");
-  setHref("nav-tryout-link", content.hero.primaryHref || "#contact");
   setText("hero-kicker", content.hero.kicker);
   setText("hero-title", content.hero.title);
   setText("hero-copy", content.hero.copy);
@@ -135,9 +134,7 @@ function fillBasics() {
   const contact = content.contact || {};
   setText("contact-title", contact.title);
   setText("contact-copy", contact.copy);
-  setText("contact-tryout", content.hero.primaryLabel || "Tryout Interest");
-  setHref("contact-tryout", content.hero.primaryHref || "#contact");
-  setText("contact-email", contact.emailLabel || "Email Us");
+  setText("contact-email", contact.emailLabel || "Contact Us");
   setHref("contact-email", contact.emailHref);
   setText("contact-facebook", contact.facebookLabel || "Facebook");
   setHref("contact-facebook", contact.facebookHref);
