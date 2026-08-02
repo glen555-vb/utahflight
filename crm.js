@@ -31,20 +31,28 @@ async function uploadPayload(file) {
   return { fileName: file.name, xlsxBase64: String(dataUrl).split(",")[1] || "" };
 }
 
+function seasonKey(year = activeYear, season = activeSeason) {
+  return `${year}-${season}`;
+}
+
+function paymentPlanFor(player) {
+  return player.usesCustomPaymentPlan ? (player.paymentPlan || []) : (crmStore.seasonPaymentPlans?.[seasonKey(player.year || "2026", player.season || "Fall")] || []);
+}
+
 function paymentSummary(player) {
   const payments = player.payments || [];
-  const plan = player.paymentPlan || [];
+  const plan = paymentPlanFor(player);
   const paid = Number(player.sheetPaidAmount || 0) + payments.reduce((sum, item) => sum + Number(item.amount || 0), 0);
   const dueToday = plan.filter((item) => item.dueDate <= new Date().toISOString().slice(0, 10)).reduce((sum, item) => sum + Number(item.amount || 0), 0);
   const total = plan.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-  const status = player.feeWaived || (paid >= total && total) ? "paid" : !paid && !dueToday ? "not_started" : paid >= dueToday ? "on_track" : "past_due";
+  const status = player.feeWaived || (paid >= total && total) ? "paid" : !total ? "unconfigured" : !paid ? "past_due" : paid >= dueToday ? "on_track" : "past_due";
   return { paid, dueToday, total, balance: Math.max(total - paid, 0), status };
 }
 
 function statusLabel(player) {
   if (player.rosterStatus === "not_selected") return ["Not selected", "status-not-selected"];
   const status = paymentSummary(player).status;
-  return status === "paid" ? ["Paid in full", "status-on-track"] : status === "on_track" ? ["On track", "status-on-track"] : status === "not_started" ? ["Payment pending", "status-pending-payment"] : ["Past due", "status-past-due"];
+  return status === "paid" ? ["Paid in full", "status-on-track"] : status === "on_track" ? ["On track", "status-on-track"] : status === "unconfigured" ? ["Set payment plan", "status-pending-payment"] : ["Past due", "status-past-due"];
 }
 
 function recipients(player, target) {
@@ -111,9 +119,10 @@ function renderDetail() {
   if (!player) { $("player-detail").innerHTML = "<p>Select a player to review their contacts and payment plan.</p>"; return; }
   const summary = paymentSummary(player);
   const [label, tone] = statusLabel(player);
-  const plans = (player.paymentPlan || []).map((item, index) => `<div class="payment-plan-row ${summary.paid >= (player.paymentPlan || []).slice(0, index + 1).reduce((sum, entry) => sum + Number(entry.amount), 0) ? "is-paid" : ""}"><span>${escapeHtml(item.dueDate)}</span><strong>${money(item.amount)}</strong></div>`).join("");
-  const planText = (player.paymentPlan || []).map((item) => `${item.dueDate}:${item.amount}`).join(", ");
-  $("player-detail").innerHTML = `<p class="kicker">${player.rosterStatus === "selected" ? "Final Team" : "Tryout Record"}</p><h2>${escapeHtml(player.name)}</h2><span class="status-pill ${tone}">${label}</span><div class="crm-contact-grid"><div><span>Player</span><strong>${escapeHtml(player.playerEmail || "No email")}</strong></div><div><span>Parent</span><strong>${escapeHtml(player.parentName || "Not listed")}</strong><strong>${escapeHtml(player.parentEmail || "No email")}</strong></div><div><span>Team</span><strong>${escapeHtml(player.team || "TBD")}</strong></div><div><span>Phones</span><strong>${escapeHtml(player.playerPhone || "-")}</strong><strong>${escapeHtml(player.parentPhone || "-")}</strong></div></div><div class="crm-detail-actions"><a class="button button-small" target="_blank" rel="noopener" href="${gmailUrl(player, "both")}">Email Both</a><a class="button button-small button-ghost" target="_blank" rel="noopener" href="${gmailUrl(player, "parent")}">Email Parent</a><a class="button button-small button-ghost" target="_blank" rel="noopener" href="${gmailUrl(player, "player")}">Email Player</a></div>${player.rosterStatus === "selected" ? `<div class="crm-payment-grid"><div><span>Paid</span><strong>${money(summary.paid)} of ${money(summary.total)}</strong></div><div><span>Balance</span><strong>${money(summary.balance)}</strong></div></div><div class="payment-plan"><p class="panel-label">Payment plan</p>${plans}</div>` : ""}<details class="crm-edit"><summary>Edit player record</summary><form id="player-edit-form" class="login-form"><label><span>Team</span><input name="team" value="${escapeHtml(player.team)}" /></label><label><span>Roster status</span><select name="rosterStatus"><option value="selected" ${player.rosterStatus === "selected" ? "selected" : ""}>Made the team</option><option value="not_selected" ${player.rosterStatus === "not_selected" ? "selected" : ""}>Not selected</option></select></label><label><span>Player email</span><input name="playerEmail" value="${escapeHtml(player.playerEmail)}" /></label><label><span>Parent email</span><input name="parentEmail" value="${escapeHtml(player.parentEmail)}" /></label><label><span>Payment schedule</span><input name="paymentPlanText" value="${escapeHtml(planText)}" placeholder="2026-08-01:300, 2026-08-28:300" /></label><label><span>Notes</span><textarea name="notes" rows="3">${escapeHtml(player.notes || "")}</textarea></label><button class="button button-small" type="submit">Save changes</button></form></details>`;
+  const activePlan = paymentPlanFor(player);
+  const plans = activePlan.map((item, index) => `<div class="payment-plan-row ${summary.paid >= activePlan.slice(0, index + 1).reduce((sum, entry) => sum + Number(entry.amount), 0) ? "is-paid" : ""}"><span>${escapeHtml(item.dueDate)}</span><strong>${money(item.amount)}</strong></div>`).join("");
+  const planText = activePlan.map((item) => `${item.dueDate}:${item.amount}`).join(", ");
+  $("player-detail").innerHTML = `<p class="kicker">${player.rosterStatus === "selected" ? "Final Team" : "Tryout Record"}</p><h2>${escapeHtml(player.name)}</h2><span class="status-pill ${tone}">${label}</span><div class="crm-contact-grid"><div><span>Player</span><strong>${escapeHtml(player.playerEmail || "No email")}</strong></div><div><span>Parent</span><strong>${escapeHtml(player.parentName || "Not listed")}</strong><strong>${escapeHtml(player.parentEmail || "No email")}</strong></div><div><span>Team</span><strong>${escapeHtml(player.team || "TBD")}</strong></div><div><span>Phones</span><strong>${escapeHtml(player.playerPhone || "-")}</strong><strong>${escapeHtml(player.parentPhone || "-")}</strong></div></div><div class="crm-detail-actions"><a class="button button-small" target="_blank" rel="noopener" href="${gmailUrl(player, "both")}">Email Both</a><a class="button button-small button-ghost" target="_blank" rel="noopener" href="${gmailUrl(player, "parent")}">Email Parent</a><a class="button button-small button-ghost" target="_blank" rel="noopener" href="${gmailUrl(player, "player")}">Email Player</a></div>${player.rosterStatus === "selected" ? `<div class="crm-payment-grid"><div><span>Paid</span><strong>${money(summary.paid)} of ${money(summary.total)}</strong></div><div><span>Balance</span><strong>${money(summary.balance)}</strong></div></div><div class="payment-plan"><p class="panel-label">Payment plan</p>${plans}</div>` : ""}<details class="crm-edit"><summary>Edit player record</summary><form id="player-edit-form" class="login-form"><label><span>Team</span><input name="team" value="${escapeHtml(player.team)}" /></label><label><span>Roster status</span><select name="rosterStatus"><option value="selected" ${player.rosterStatus === "selected" ? "selected" : ""}>Made the team</option><option value="not_selected" ${player.rosterStatus === "not_selected" ? "selected" : ""}>Not selected</option></select></label><label><span>Player email</span><input name="playerEmail" value="${escapeHtml(player.playerEmail)}" /></label><label><span>Parent email</span><input name="parentEmail" value="${escapeHtml(player.parentEmail)}" /></label><label><span>Payment plan</span><select name="usesCustomPaymentPlan"><option value="false" ${player.usesCustomPaymentPlan ? "" : "selected"}>Season default</option><option value="true" ${player.usesCustomPaymentPlan ? "selected" : ""}>Custom player plan</option></select></label><label><span>Payment schedule</span><input name="paymentPlanText" value="${escapeHtml(planText)}" placeholder="2027-08-01:300, 2027-08-28:300" /></label><label><span>Notes</span><textarea name="notes" rows="3">${escapeHtml(player.notes || "")}</textarea></label><button class="button button-small" type="submit">Save changes</button></form></details>`;
   $("player-edit-form").addEventListener("submit", savePlayer);
 }
 
@@ -123,11 +132,14 @@ async function savePlayer(event) {
   const data = Object.fromEntries(new FormData(event.currentTarget).entries());
   const planText = data.paymentPlanText;
   delete data.paymentPlanText;
-  if (planText) {
+  data.usesCustomPaymentPlan = data.usesCustomPaymentPlan === "true";
+  if (data.usesCustomPaymentPlan && planText) {
     data.paymentPlan = planText.split(",").map((entry) => {
       const [dueDate, amount] = entry.trim().split(":");
       return { dueDate: dueDate.trim(), amount: Number(amount) || 0 };
     }).filter((item) => /^\d{4}-\d{2}-\d{2}$/.test(item.dueDate) && item.amount > 0);
+  } else if (!data.usesCustomPaymentPlan) {
+    data.paymentPlan = [];
   }
   Object.assign(player, data);
   try { crmStore = await api(`/api/crm/players/${encodeURIComponent(player.id)}`, { method: "PUT", body: JSON.stringify({ player }) }); renderAll(); } catch (error) { $("import-status").textContent = error.message; }
@@ -149,7 +161,31 @@ function renderYearControl() {
   $("clear-year-button").textContent = `Clear ${activeSeason} ${activeYear} Data`;
 }
 
-function renderAll() { renderYearControl(); renderMetrics(); renderPlayers(); renderDetail(); renderUnmatched(); renderEmailListButton(); }
+function renderSeasonPlanFields(plan = crmStore.seasonPaymentPlans?.[seasonKey()] || []) {
+  const installments = plan.length ? plan : [{ dueDate: "", amount: "" }];
+  $("season-plan-fields").innerHTML = installments.map((item, index) => `<div class="season-plan-row"><label><span>Due date</span><input name="dueDate" type="date" value="${escapeHtml(item.dueDate)}" required /></label><label><span>Amount</span><input name="amount" type="number" min="0" step="0.01" value="${escapeHtml(item.amount)}" required /></label><button class="button button-ghost button-small" type="button" data-remove-installment="${index}">Remove</button></div>`).join("");
+  document.querySelectorAll("[data-remove-installment]").forEach((button) => button.addEventListener("click", () => {
+    const nextPlan = [...document.querySelectorAll(".season-plan-row")].filter((_, index) => index !== Number(button.dataset.removeInstallment)).map((row) => ({ dueDate: row.querySelector('[name="dueDate"]').value, amount: row.querySelector('[name="amount"]').value }));
+    renderSeasonPlanFields(nextPlan);
+  }));
+}
+
+function addInstallment() {
+  const currentPlan = [...document.querySelectorAll(".season-plan-row")].map((row) => ({ dueDate: row.querySelector('[name="dueDate"]').value, amount: row.querySelector('[name="amount"]').value }));
+  renderSeasonPlanFields([...currentPlan, { dueDate: "", amount: "" }]);
+}
+
+async function saveSeasonPlan(event) {
+  event.preventDefault();
+  const plan = [...document.querySelectorAll(".season-plan-row")].map((row) => ({ dueDate: row.querySelector('[name="dueDate"]').value, amount: Number(row.querySelector('[name="amount"]').value) })).filter((item) => item.dueDate && item.amount > 0);
+  try {
+    crmStore = await api(`/api/crm/years/${encodeURIComponent(activeYear)}/seasons/${encodeURIComponent(activeSeason)}/payment-plan`, { method: "PUT", body: JSON.stringify({ plan }) });
+    $("import-status").textContent = `${activeSeason} ${activeYear} payment plan saved.`;
+    renderAll();
+  } catch (error) { $("import-status").textContent = error.message; }
+}
+
+function renderAll() { renderYearControl(); renderSeasonPlanFields(); renderMetrics(); renderPlayers(); renderDetail(); renderUnmatched(); renderEmailListButton(); }
 
 async function importVenmo(file) {
   if (!file) return;
@@ -216,6 +252,8 @@ $("year-select").addEventListener("change", (event) => { activeYear = event.targ
 $("season-select").addEventListener("change", (event) => { activeSeason = event.target.value; activePlayerId = ""; renderAll(); });
 $("add-year-button").addEventListener("click", addYear);
 $("add-season-button").addEventListener("click", addSeason);
+$("season-plan-form").addEventListener("submit", saveSeasonPlan);
+$("add-installment-button").addEventListener("click", addInstallment);
 $("clear-year-button").addEventListener("click", clearYear);
 $("venmo-file").addEventListener("change", (event) => importVenmo(event.target.files[0]));
 $("payments-file").addEventListener("change", (event) => importPaymentsSheet(event.target.files[0]));

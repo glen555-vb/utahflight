@@ -182,7 +182,8 @@ function normalizeCrmPlayer(player) {
     notes: safe.notes || "",
     sheetPaidAmount: Number(safe.sheetPaidAmount || 0),
     feeWaived: Boolean(safe.feeWaived),
-    paymentPlan: Array.isArray(safe.paymentPlan) ? safe.paymentPlan : (safe.rosterStatus === "not_selected" ? [] : defaultPaymentPlan(safe)),
+    usesCustomPaymentPlan: safe.usesCustomPaymentPlan === true || (safe.usesCustomPaymentPlan === undefined && /crossley/i.test(`${safe.name || ""} ${safe.parentName || ""}`)),
+    paymentPlan: Array.isArray(safe.paymentPlan) ? safe.paymentPlan : [],
     payments: Array.isArray(safe.payments) ? safe.payments : []
   };
 }
@@ -197,7 +198,7 @@ function normalizeCrmStore(store) {
   years.forEach((year) => { if (!seasonsByYear[year]?.length) seasonsByYear[year] = ["Fall"]; });
   const activeYear = years.includes(raw.activeYear) ? raw.activeYear : years[0];
   const activeSeason = seasonsByYear[activeYear].includes(raw.activeSeason) ? raw.activeSeason : seasonsByYear[activeYear][0];
-  return { players, unmatchedPayments, paymentBaselineDates: raw.paymentBaselineDates || (raw.paymentBaselineDate ? { "2026": raw.paymentBaselineDate } : {}), years, seasonsByYear, activeYear, activeSeason };
+  return { players, unmatchedPayments, paymentBaselineDates: raw.paymentBaselineDates || (raw.paymentBaselineDate ? { "2026": raw.paymentBaselineDate } : {}), seasonPaymentPlans: raw.seasonPaymentPlans || {}, years, seasonsByYear, activeYear, activeSeason };
 }
 
 function readSeedCrmStore() {
@@ -364,6 +365,25 @@ async function handleCrmSeasonClear(req, res, requestUrl) {
     store.players = store.players.filter((player) => !(player.year === year && player.season === season));
     store.unmatchedPayments = store.unmatchedPayments.filter((payment) => !((payment.year || "2026") === year && (payment.season || "Fall") === season));
     delete store.paymentBaselineDates[`${year}-${season}`];
+    writeCrmStore(store);
+    sendJson(res, 200, store);
+  } catch (error) { sendJson(res, 400, { error: error.message }); }
+}
+
+async function handleCrmSeasonPaymentPlanUpdate(req, res, requestUrl) {
+  if (!requireSession(req, res, "admin")) return;
+  try {
+    const segments = requestUrl.pathname.split("/");
+    const year = segments.at(-4);
+    const season = segments.at(-2);
+    const store = readCrmStore();
+    getCrmYear(year, store);
+    getCrmSeason(season, year, store);
+    const body = await readBody(req);
+    const plan = Array.isArray(body.plan) ? body.plan.map((item) => ({ dueDate: String(item.dueDate || ""), amount: Number(item.amount || 0) })).filter((item) => /^\d{4}-\d{2}-\d{2}$/.test(item.dueDate) && item.amount > 0) : [];
+    if (!plan.length) throw new Error("Add at least one due date and amount.");
+    if (plan.length > 12) throw new Error("Use no more than 12 payment installments.");
+    store.seasonPaymentPlans[`${year}-${season}`] = plan.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
     writeCrmStore(store);
     sendJson(res, 200, store);
   } catch (error) { sendJson(res, 400, { error: error.message }); }
@@ -1101,6 +1121,10 @@ const server = http.createServer((req, res) => {
   }
   if (/^\/api\/crm\/years\/20\d{2}\/seasons$/.test(requestUrl.pathname) && req.method === "POST") {
     handleCrmSeasonCreate(req, res, requestUrl);
+    return;
+  }
+  if (/^\/api\/crm\/years\/20\d{2}\/seasons\/(Fall|Winter|Spring|Summer)\/payment-plan$/.test(requestUrl.pathname) && req.method === "PUT") {
+    handleCrmSeasonPaymentPlanUpdate(req, res, requestUrl);
     return;
   }
   if (/^\/api\/crm\/years\/20\d{2}\/seasons\/(Fall|Winter|Spring|Summer)$/.test(requestUrl.pathname) && req.method === "DELETE") {

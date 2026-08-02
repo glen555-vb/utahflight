@@ -1,0 +1,40 @@
+.season-plan-editor {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.season-plan-editor summary {
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 800;
+}
+
+.season-plan-form {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.season-plan-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 0.7rem;
+  align-items: end;
+}
+
+.season-plan-row label {
+  display: grid;
+  gap: 0.32rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+@media (max-width: 600px) {
+  .season-plan-row { grid-template-columns: 1fr; }
+  .season-plan-row .button { justify-self: start; }
+}

@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="recruiting.css" />
     <link rel="stylesheet" href="crm.css" />
+    <link rel="stylesheet" href="crm-plan.css?v=payment-plan-20260801" />
   </head>
   <body>
     <div class="recruiting-shell">
@@ -50,6 +51,7 @@
               <label class="file-action"><span>Import Venmo</span><input id="venmo-file" type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" /></label>
             </section>
             <p id="import-status" class="form-status" aria-live="polite"></p>
+            <details class="season-plan-editor"><summary>Fees &amp; Dates</summary><form id="season-plan-form" class="season-plan-form"><div id="season-plan-fields"></div><div class="crm-bulk-actions"><button id="add-installment-button" class="button button-ghost" type="button">Add Installment</button><button class="button" type="submit">Save Payment Plan</button></div></form></details>
             <div class="crm-bulk-actions"><a id="email-list-button" class="button button-ghost" target="_blank" rel="noopener">Email List</a><button id="clear-year-button" class="button button-ghost clear-year-button" type="button">Clear Fall 2027 Data</button></div>
             <div class="crm-layout">
               <section><div id="player-list" class="crm-player-list"></div></section>
@@ -60,6 +62,6 @@
         </section>
       </main>
     </div>
-    <script src="crm.js?v=crm-email-fix-20260801"></script>
+    <script src="crm.js?v=payment-plan-20260801"></script>
   </body>
 </html>
