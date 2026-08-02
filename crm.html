@@ -35,10 +35,10 @@
           <div class="container">
             <div class="crm-heading">
               <div class="section-heading"><p class="kicker">Roster And Payments</p><h1>Club CRM</h1><p id="crm-summary">Loading player records.</p></div>
-              <button id="logout-button" class="button button-ghost" type="button">Logout</button>
+              <div class="crm-heading-actions"><label><span>Season</span><select id="year-select" aria-label="Season year"></select></label><button id="add-year-button" class="button button-ghost" type="button">Add Year</button><button id="logout-button" class="button button-ghost" type="button">Logout</button></div>
             </div>
             <section class="crm-metrics" aria-label="CRM summary">
-              <article><span>On Track</span><strong id="metric-on-track">0</strong></article><article><span>Past Due</span><strong id="metric-past-due">0</strong></article><article><span>Not Selected</span><strong id="metric-not-selected">0</strong></article><article><span>Unmatched Payments</span><strong id="metric-unmatched">0</strong></article>
+              <article><span>On-Track Payments</span><strong id="metric-on-track">0</strong></article><article><span>Past-Due Payments</span><strong id="metric-past-due">0</strong></article><article><span>Not Selected</span><strong id="metric-not-selected">0</strong></article><article><span>Unmatched Payments</span><strong id="metric-unmatched">0</strong></article>
             </section>
             <section class="crm-controls">
               <label class="crm-search"><span>Search</span><input id="player-search" type="search" placeholder="Player, parent, or email" /></label>
@@ -50,6 +50,7 @@
               <label class="file-action"><span>Import Venmo</span><input id="venmo-file" type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" /></label>
             </section>
             <p id="import-status" class="form-status" aria-live="polite"></p>
+            <button id="clear-year-button" class="button button-ghost clear-year-button" type="button">Clear 2026 Data</button>
             <div class="crm-layout">
               <section><div id="player-list" class="crm-player-list"></div></section>
               <aside id="player-detail" class="crm-detail"><p>Select a player to review their contacts and payment plan.</p></aside>
@@ -59,6 +60,6 @@
         </section>
       </main>
     </div>
-    <script src="crm.js?v=xlsx-import-20260801"></script>
+    <script src="crm.js?v=crm-year-20260801"></script>
   </body>
 </html>

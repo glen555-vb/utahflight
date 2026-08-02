@@ -168,6 +168,7 @@ function normalizeCrmPlayer(player) {
   const safe = player && typeof player === "object" ? player : {};
   return {
     id: safe.id || slugify(safe.name || crypto.randomBytes(4).toString("hex")),
+    year: String(safe.year || "2026"),
     name: safe.name || "Unnamed player",
     team: safe.team || "",
     rosterStatus: safe.rosterStatus === "not_selected" ? "not_selected" : "selected",
@@ -187,9 +188,9 @@ function normalizeCrmPlayer(player) {
 function readSeedCrmStore() {
   try {
     const store = JSON.parse(fs.readFileSync(seedCrmPath, "utf8"));
-    return { players: (store.players || []).map(normalizeCrmPlayer), unmatchedPayments: store.unmatchedPayments || [], paymentBaselineDate: store.paymentBaselineDate || "" };
+    return { players: (store.players || []).map(normalizeCrmPlayer), unmatchedPayments: store.unmatchedPayments || [], paymentBaselineDates: store.paymentBaselineDates || (store.paymentBaselineDate ? { "2026": store.paymentBaselineDate } : {}), years: store.years || ["2026"], activeYear: store.activeYear || "2026" };
   } catch (error) {
-    return { players: [], unmatchedPayments: [] };
+    return { players: [], unmatchedPayments: [], years: ["2026"], activeYear: "2026" };
   }
 }
 
@@ -202,7 +203,7 @@ function readCrmStore() {
   }
   try {
     const store = JSON.parse(fs.readFileSync(crmPath, "utf8"));
-    return { players: (store.players || []).map(normalizeCrmPlayer), unmatchedPayments: store.unmatchedPayments || [] };
+    return { players: (store.players || []).map(normalizeCrmPlayer), unmatchedPayments: store.unmatchedPayments || [], paymentBaselineDates: store.paymentBaselineDates || (store.paymentBaselineDate ? { "2026": store.paymentBaselineDate } : {}), years: store.years || ["2026"], activeYear: store.activeYear || "2026" };
   } catch (error) {
     return readSeedCrmStore();
   }
@@ -277,6 +278,40 @@ function handleCrm(req, res) {
   sendJson(res, 200, readCrmStore());
 }
 
+function getCrmYear(value, store) {
+  const year = String(value || store.activeYear || "2026");
+  if (!/^20\d{2}$/.test(year)) throw new Error("Enter a four-digit season year.");
+  if (!store.years.includes(year)) throw new Error("Choose an existing CRM year first.");
+  return year;
+}
+
+async function handleCrmYearCreate(req, res) {
+  if (!requireSession(req, res, "admin")) return;
+  try {
+    const body = await readBody(req);
+    const year = String(body.year || "");
+    if (!/^20\d{2}$/.test(year)) throw new Error("Enter a four-digit season year.");
+    const store = readCrmStore();
+    if (!store.years.includes(year)) store.years.push(year);
+    store.activeYear = year;
+    writeCrmStore(store);
+    sendJson(res, 200, store);
+  } catch (error) { sendJson(res, 400, { error: error.message }); }
+}
+
+async function handleCrmYearClear(req, res, requestUrl) {
+  if (!requireSession(req, res, "admin")) return;
+  try {
+    const year = requestUrl.pathname.split("/").at(-1);
+    const store = readCrmStore();
+    getCrmYear(year, store);
+    store.players = store.players.filter((player) => player.year !== year);
+    store.unmatchedPayments = store.unmatchedPayments.filter((payment) => (payment.year || "2026") !== year);
+    writeCrmStore(store);
+    sendJson(res, 200, store);
+  } catch (error) { sendJson(res, 400, { error: error.message }); }
+}
+
 async function handleCrmPlayerUpdate(req, res, requestUrl) {
   if (!requireSession(req, res, "admin")) return;
   try {
@@ -301,15 +336,16 @@ async function handleVenmoImport(req, res) {
     const headers = rows[headerIndex];
     const column = (name) => headers.indexOf(name);
     const store = readCrmStore();
-    const knownIds = new Set(store.players.flatMap((player) => player.payments.map((payment) => payment.id)));
+    const year = getCrmYear(body.year, store);
+    const knownIds = new Set(store.players.filter((player) => player.year === year).flatMap((player) => player.payments.map((payment) => payment.id)));
     let imported = 0;
     rows.slice(headerIndex + 1).forEach((row) => {
       const id = row[column("ID")];
       const amount = parseMoney(row[column("Amount (total)")]);
       if (!id || knownIds.has(id) || row[column("Type")] !== "Payment" || row[column("Status")] !== "Complete" || amount <= 0) return;
-      const payment = { id, date: String(row[column("Datetime")] || "").slice(0, 10), from: row[column("From")] || "", note: row[column("Note")] || "", amount };
-      if (store.paymentBaselineDate && payment.date && payment.date <= store.paymentBaselineDate) return;
-      const player = findPaymentMatch(store.players, payment);
+      const payment = { id, year, date: String(row[column("Datetime")] || "").slice(0, 10), from: row[column("From")] || "", note: row[column("Note")] || "", amount };
+      if (store.paymentBaselineDates?.[year] && payment.date && payment.date <= store.paymentBaselineDates[year]) return;
+      const player = findPaymentMatch(store.players.filter((item) => item.year === year), payment);
       if (player) player.payments.push(payment);
       else store.unmatchedPayments.push(payment);
       knownIds.add(id); imported += 1;
@@ -333,10 +369,11 @@ async function handlePaymentsSheetImport(req, res) {
     };
     if (column("Player Name") === -1 || column("Amount Paid") === -1) throw new Error("The CSV must include Player Name and Amount Paid columns.");
     const store = readCrmStore();
+    const year = getCrmYear(body.year, store);
     rows.slice(1).forEach((row) => {
       const name = value(row, "Player Name");
       if (!name) return;
-      const player = store.players.find((item) => normalizeName(item.name) === normalizeName(name));
+      const player = store.players.find((item) => item.year === year && normalizeName(item.name) === normalizeName(name));
       if (!player) return;
       const notes = value(row, "Notes");
       const status = value(row, "Status");
@@ -346,7 +383,7 @@ async function handlePaymentsSheetImport(req, res) {
       player.notes = notes || player.notes;
       player.team = value(row, "Age Group") || player.team;
     });
-    store.paymentBaselineDate = new Date().toISOString().slice(0, 10);
+    store.paymentBaselineDates[year] = new Date().toISOString().slice(0, 10);
     writeCrmStore(store);
     sendJson(res, 200, store);
   } catch (error) { sendJson(res, 400, { error: error.message }); }
@@ -366,15 +403,17 @@ async function handleRosterImport(req, res, source) {
     };
     if (column("Player Name") === -1) throw new Error("The CSV needs a Player Name column.");
     const store = readCrmStore();
+    const year = getCrmYear(body.year, store);
     let imported = 0;
     rows.slice(1).forEach((row) => {
       const name = values(row, "Player Name");
       if (!name) return;
       const key = normalizeName(name);
-      const index = store.players.findIndex((player) => normalizeName(player.name) === key);
+      const index = store.players.findIndex((player) => player.year === year && normalizeName(player.name) === key);
       const existing = index >= 0 ? store.players[index] : {};
       const player = normalizeCrmPlayer({
         ...existing,
+        year,
         name,
         team: values(row, "Potential Team") || existing.team,
         playerEmail: values(row, "Player email address") || existing.playerEmail,
@@ -993,6 +1032,14 @@ const server = http.createServer((req, res) => {
   }
   if (requestUrl.pathname === "/api/crm" && req.method === "GET") {
     handleCrm(req, res);
+    return;
+  }
+  if (requestUrl.pathname === "/api/crm/years" && req.method === "POST") {
+    handleCrmYearCreate(req, res);
+    return;
+  }
+  if (/^\/api\/crm\/years\/20\d{2}$/.test(requestUrl.pathname) && req.method === "DELETE") {
+    handleCrmYearClear(req, res, requestUrl);
     return;
   }
   if (/^\/api\/crm\/players\/[^/]+$/.test(requestUrl.pathname) && req.method === "PUT") {
