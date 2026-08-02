@@ -2,6 +2,7 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const XLSX = require("xlsx");
 
 const rootDir = __dirname;
 const port = Number(process.env.PORT || 3000);
@@ -236,6 +237,20 @@ function parseCsv(text) {
   return rows;
 }
 
+function readImportRows(body, preferredSheet, requiredHeaders) {
+  if (!body.xlsxBase64) return parseCsv(body.csv);
+  const workbook = XLSX.read(Buffer.from(body.xlsxBase64, "base64"), { type: "buffer", raw: false });
+  const names = [preferredSheet, ...workbook.SheetNames.filter((name) => name !== preferredSheet)];
+  for (const name of names) {
+    if (!workbook.Sheets[name]) continue;
+    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[name], { header: 1, defval: "", raw: false })
+      .map((row) => row.map((cell) => String(cell || "").trim()));
+    const headers = (rows[0] || []).map((value) => value.toLowerCase());
+    if (requiredHeaders.every((header) => headers.includes(header.toLowerCase()))) return rows;
+  }
+  throw new Error(`No matching worksheet was found. Expected ${requiredHeaders.join(" and ")} columns.`);
+}
+
 function normalizeName(value) {
   return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
@@ -280,7 +295,7 @@ async function handleVenmoImport(req, res) {
   if (!requireSession(req, res, "admin")) return;
   try {
     const body = await readBody(req, 5_000_000);
-    const rows = parseCsv(body.csv);
+    const rows = readImportRows(body, "", ["ID", "Amount (total)"]);
     const headerIndex = rows.findIndex((row) => row.includes("ID") && row.includes("Amount (total)"));
     if (headerIndex === -1) throw new Error("This does not look like a Venmo statement CSV.");
     const headers = rows[headerIndex];
@@ -308,7 +323,7 @@ async function handlePaymentsSheetImport(req, res) {
   if (!requireSession(req, res, "admin")) return;
   try {
     const body = await readBody(req, 5_000_000);
-    const rows = parseCsv(body.csv);
+    const rows = readImportRows(body, "Payments", ["Player Name", "Amount Paid"]);
     if (rows.length < 2) throw new Error("Choose the Payments tab as a CSV file.");
     const headers = rows[0].map((value) => String(value || "").toLowerCase());
     const column = (name) => headers.indexOf(name.toLowerCase());
@@ -341,7 +356,7 @@ async function handleRosterImport(req, res, source) {
   if (!requireSession(req, res, "admin")) return;
   try {
     const body = await readBody(req, 5_000_000);
-    const rows = parseCsv(body.csv);
+    const rows = readImportRows(body, source === "final" ? "Final Teams" : "Form Responses 1", ["Player Name"]);
     if (rows.length < 2) throw new Error("Choose a Google Sheets CSV with a header row and player records.");
     const headers = rows[0].map((value) => String(value || "").toLowerCase());
     const column = (name) => headers.indexOf(name.toLowerCase());

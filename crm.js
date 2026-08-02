@@ -18,6 +18,17 @@ async function api(url, options = {}) {
   return data;
 }
 
+async function uploadPayload(file) {
+  if (!/\.xlsx$/i.test(file.name)) return { fileName: file.name, csv: await file.text() };
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("The Excel file could not be read."));
+    reader.readAsDataURL(file);
+  });
+  return { fileName: file.name, xlsxBase64: String(dataUrl).split(",")[1] || "" };
+}
+
 function paymentSummary(player) {
   const payments = player.payments || [];
   const plan = player.paymentPlan || [];
@@ -113,7 +124,7 @@ function renderAll() { renderMetrics(); renderPlayers(); renderDetail(); renderU
 async function importVenmo(file) {
   if (!file) return;
   $("import-status").textContent = "Importing Venmo statement...";
-  try { crmStore = await api("/api/crm/import-venmo", { method: "POST", body: JSON.stringify({ fileName: file.name, csv: await file.text() }) }); $("import-status").textContent = "Venmo payments imported. Review any unmatched payments below."; renderAll(); } catch (error) { $("import-status").textContent = error.message; }
+  try { crmStore = await api("/api/crm/import-venmo", { method: "POST", body: JSON.stringify(await uploadPayload(file)) }); $("import-status").textContent = "Venmo payments imported. Review any unmatched payments below."; renderAll(); } catch (error) { $("import-status").textContent = error.message; }
   $("venmo-file").value = "";
 }
 
@@ -121,7 +132,7 @@ async function importPaymentsSheet(file) {
   if (!file) return;
   $("import-status").textContent = "Importing the Payments tab...";
   try {
-    crmStore = await api("/api/crm/import-payments-sheet", { method: "POST", body: JSON.stringify({ fileName: file.name, csv: await file.text() }) });
+    crmStore = await api("/api/crm/import-payments-sheet", { method: "POST", body: JSON.stringify(await uploadPayload(file)) });
     $("import-status").textContent = "Payments tab imported. Earlier Venmo transactions will not be counted again.";
     renderAll();
   } catch (error) { $("import-status").textContent = error.message; }
@@ -132,7 +143,7 @@ async function importRoster(file, endpoint, label) {
   if (!file) return;
   $("import-status").textContent = `Importing ${label}...`;
   try {
-    crmStore = await api(endpoint, { method: "POST", body: JSON.stringify({ fileName: file.name, csv: await file.text() }) });
+    crmStore = await api(endpoint, { method: "POST", body: JSON.stringify(await uploadPayload(file)) });
     $("import-status").textContent = `${label} imported. Review the roster and payment statuses.`;
     renderAll();
   } catch (error) { $("import-status").textContent = error.message; }

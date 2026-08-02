@@ -10,3 +10,6 @@ __pycache__/
 # Local file-backed app data
 data/
 uploads/
+
+# Installed JavaScript packages
+node_modules/
