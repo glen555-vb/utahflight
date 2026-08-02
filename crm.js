@@ -66,11 +66,11 @@ function emailListUrl(players) {
 }
 
 function renderEmailListButton() {
-  const recipients = filteredPlayers().filter((player) => recipients({ parentEmail: player.parentEmail }, "parent").length);
+  const parentRecipients = filteredPlayers().filter((player) => recipients({ parentEmail: player.parentEmail }, "parent").length);
   const button = $("email-list-button");
-  button.href = emailListUrl(recipients);
-  button.setAttribute("aria-disabled", String(!recipients.length));
-  button.classList.toggle("is-disabled", !recipients.length);
+  button.href = emailListUrl(parentRecipients);
+  button.setAttribute("aria-disabled", String(!parentRecipients.length));
+  button.classList.toggle("is-disabled", !parentRecipients.length);
 }
 
 function currentYearPlayers() {
