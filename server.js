@@ -12,9 +12,10 @@ const profilesPath = path.join(dataDir, "recruiting-profiles.json");
 const seedProfilesPath = path.join(rootDir, "recruiting-seed.json");
 const crmPath = path.join(dataDir, "crm.json");
 const seedCrmPath = path.join(rootDir, "crm-seed.json");
+const cleanTrelloCredential = (value) => String(value || "").trim().replace(/^['"]+|['"]+$/g, "").replace(/\s+/g, "");
 const trelloCredentials = {
-  key: process.env.TRELLO_API_KEY || "",
-  token: process.env.TRELLO_TOKEN || ""
+  key: cleanTrelloCredential(process.env.TRELLO_API_KEY),
+  token: cleanTrelloCredential(process.env.TRELLO_TOKEN)
 };
 const sessions = new Map();
 const oauthStates = new Map();
@@ -584,7 +585,12 @@ async function handleTrelloPhotoImport(req, res) {
         const profile = profiles.profiles.find((item) => normalizeName(item.name) === normalizeName(player.name));
         if (profile) profile.photo = photo;
         results.imported += 1;
-      } catch (error) { results.failed.push(`${player.name}: ${error.message}`); }
+      } catch (error) {
+        const message = /headers\.append|invalid header/i.test(String(error.message || ""))
+          ? "Trello credentials contain invalid characters. Remove quotation marks and spaces in Railway."
+          : String(error.message || "Unable to download photo.");
+        results.failed.push(`${player.name}: ${message}`);
+      }
     }
     writeCrmStore(store);
     writeProfileStore(profiles);
