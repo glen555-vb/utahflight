@@ -9,6 +9,8 @@ const dataDir = path.join(rootDir, "data");
 const uploadsDir = path.join(rootDir, "uploads", "recruiting");
 const profilesPath = path.join(dataDir, "recruiting-profiles.json");
 const seedProfilesPath = path.join(rootDir, "recruiting-seed.json");
+const crmPath = path.join(dataDir, "crm.json");
+const seedCrmPath = path.join(rootDir, "crm-seed.json");
 const sessions = new Map();
 const oauthStates = new Map();
 const credentials = {
@@ -154,6 +156,228 @@ function writeProfileStore(store) {
   fs.writeFileSync(profilesPath, JSON.stringify(store, null, 2));
 }
 
+function defaultPaymentPlan(player) {
+  if (/crossley/i.test(`${player.name} ${player.parentName}`)) {
+    return ["2026-08-01", "2026-08-28", "2026-09-26", "2026-10-24", "2026-11-21"].map((dueDate) => ({ dueDate, amount: 180 }));
+  }
+  return ["2026-08-01", "2026-08-28", "2026-09-26"].map((dueDate) => ({ dueDate, amount: 300 }));
+}
+
+function normalizeCrmPlayer(player) {
+  const safe = player && typeof player === "object" ? player : {};
+  return {
+    id: safe.id || slugify(safe.name || crypto.randomBytes(4).toString("hex")),
+    name: safe.name || "Unnamed player",
+    team: safe.team || "",
+    rosterStatus: safe.rosterStatus === "not_selected" ? "not_selected" : "selected",
+    playerEmail: safe.playerEmail || "",
+    parentName: safe.parentName || "",
+    parentEmail: safe.parentEmail || "",
+    playerPhone: safe.playerPhone || "",
+    parentPhone: safe.parentPhone || "",
+    notes: safe.notes || "",
+    sheetPaidAmount: Number(safe.sheetPaidAmount || 0),
+    feeWaived: Boolean(safe.feeWaived),
+    paymentPlan: Array.isArray(safe.paymentPlan) ? safe.paymentPlan : (safe.rosterStatus === "not_selected" ? [] : defaultPaymentPlan(safe)),
+    payments: Array.isArray(safe.payments) ? safe.payments : []
+  };
+}
+
+function readSeedCrmStore() {
+  try {
+    const store = JSON.parse(fs.readFileSync(seedCrmPath, "utf8"));
+    return { players: (store.players || []).map(normalizeCrmPlayer), unmatchedPayments: store.unmatchedPayments || [], paymentBaselineDate: store.paymentBaselineDate || "" };
+  } catch (error) {
+    return { players: [], unmatchedPayments: [] };
+  }
+}
+
+function readCrmStore() {
+  ensureDataFile();
+  if (!fs.existsSync(crmPath)) {
+    const seed = readSeedCrmStore();
+    fs.writeFileSync(crmPath, JSON.stringify(seed, null, 2));
+    return seed;
+  }
+  try {
+    const store = JSON.parse(fs.readFileSync(crmPath, "utf8"));
+    return { players: (store.players || []).map(normalizeCrmPlayer), unmatchedPayments: store.unmatchedPayments || [] };
+  } catch (error) {
+    return readSeedCrmStore();
+  }
+}
+
+function writeCrmStore(store) {
+  ensureDataFile();
+  fs.writeFileSync(crmPath, JSON.stringify(store, null, 2));
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let quoted = false;
+  for (let index = 0; index < String(text || "").length; index += 1) {
+    const char = text[index];
+    const next = text[index + 1];
+    if (char === '"' && quoted && next === '"') { cell += '"'; index += 1; continue; }
+    if (char === '"') { quoted = !quoted; continue; }
+    if (char === "," && !quoted) { row.push(cell.trim()); cell = ""; continue; }
+    if ((char === "\n" || char === "\r") && !quoted) {
+      if (char === "\r" && next === "\n") index += 1;
+      row.push(cell.trim());
+      if (row.some(Boolean)) rows.push(row);
+      row = []; cell = ""; continue;
+    }
+    cell += char;
+  }
+  row.push(cell.trim());
+  if (row.some(Boolean)) rows.push(row);
+  return rows;
+}
+
+function normalizeName(value) {
+  return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function parseMoney(value) {
+  const amount = Number(String(value || "").replace(/[^0-9.-]/g, ""));
+  return Number.isFinite(amount) ? amount : 0;
+}
+
+function findPaymentMatch(players, payment) {
+  const note = normalizeName(payment.note);
+  const sender = normalizeName(payment.from);
+  const haystack = `${note} ${sender}`;
+  const matches = players.filter((player) => {
+    const playerName = normalizeName(player.name);
+    const parentName = normalizeName(player.parentName);
+    return (playerName && haystack.includes(playerName)) || (parentName && sender && sender.includes(parentName));
+  });
+  return matches.length === 1 ? matches[0] : null;
+}
+
+function handleCrm(req, res) {
+  if (!requireSession(req, res, "admin")) return;
+  sendJson(res, 200, readCrmStore());
+}
+
+async function handleCrmPlayerUpdate(req, res, requestUrl) {
+  if (!requireSession(req, res, "admin")) return;
+  try {
+    const id = requestUrl.pathname.split("/").at(-1);
+    const body = await readBody(req);
+    const store = readCrmStore();
+    const index = store.players.findIndex((player) => player.id === id);
+    if (index === -1) { sendJson(res, 404, { error: "Player not found." }); return; }
+    store.players[index] = normalizeCrmPlayer({ ...store.players[index], ...(body.player || {}), id });
+    writeCrmStore(store);
+    sendJson(res, 200, store);
+  } catch (error) { sendJson(res, 400, { error: error.message }); }
+}
+
+async function handleVenmoImport(req, res) {
+  if (!requireSession(req, res, "admin")) return;
+  try {
+    const body = await readBody(req, 5_000_000);
+    const rows = parseCsv(body.csv);
+    const headerIndex = rows.findIndex((row) => row.includes("ID") && row.includes("Amount (total)"));
+    if (headerIndex === -1) throw new Error("This does not look like a Venmo statement CSV.");
+    const headers = rows[headerIndex];
+    const column = (name) => headers.indexOf(name);
+    const store = readCrmStore();
+    const knownIds = new Set(store.players.flatMap((player) => player.payments.map((payment) => payment.id)));
+    let imported = 0;
+    rows.slice(headerIndex + 1).forEach((row) => {
+      const id = row[column("ID")];
+      const amount = parseMoney(row[column("Amount (total)")]);
+      if (!id || knownIds.has(id) || row[column("Type")] !== "Payment" || row[column("Status")] !== "Complete" || amount <= 0) return;
+      const payment = { id, date: String(row[column("Datetime")] || "").slice(0, 10), from: row[column("From")] || "", note: row[column("Note")] || "", amount };
+      if (store.paymentBaselineDate && payment.date && payment.date <= store.paymentBaselineDate) return;
+      const player = findPaymentMatch(store.players, payment);
+      if (player) player.payments.push(payment);
+      else store.unmatchedPayments.push(payment);
+      knownIds.add(id); imported += 1;
+    });
+    writeCrmStore(store);
+    sendJson(res, 200, { ...store, imported });
+  } catch (error) { sendJson(res, 400, { error: error.message }); }
+}
+
+async function handlePaymentsSheetImport(req, res) {
+  if (!requireSession(req, res, "admin")) return;
+  try {
+    const body = await readBody(req, 5_000_000);
+    const rows = parseCsv(body.csv);
+    if (rows.length < 2) throw new Error("Choose the Payments tab as a CSV file.");
+    const headers = rows[0].map((value) => String(value || "").toLowerCase());
+    const column = (name) => headers.indexOf(name.toLowerCase());
+    const value = (row, name) => {
+      const index = column(name);
+      return index >= 0 ? row[index] || "" : "";
+    };
+    if (column("Player Name") === -1 || column("Amount Paid") === -1) throw new Error("The CSV must include Player Name and Amount Paid columns.");
+    const store = readCrmStore();
+    rows.slice(1).forEach((row) => {
+      const name = value(row, "Player Name");
+      if (!name) return;
+      const player = store.players.find((item) => normalizeName(item.name) === normalizeName(name));
+      if (!player) return;
+      const notes = value(row, "Notes");
+      const status = value(row, "Status");
+      const crossleyPartial = /\$\s*180\b.*(?:received|pmt)/i.test(notes);
+      player.sheetPaidAmount = parseMoney(value(row, "Amount Paid")) || (crossleyPartial ? 180 : 0);
+      player.feeWaived = /fee waived|n\/a\s*-?\s*paid/i.test(status) || /fee waived/i.test(notes);
+      player.notes = notes || player.notes;
+      player.team = value(row, "Age Group") || player.team;
+    });
+    store.paymentBaselineDate = new Date().toISOString().slice(0, 10);
+    writeCrmStore(store);
+    sendJson(res, 200, store);
+  } catch (error) { sendJson(res, 400, { error: error.message }); }
+}
+
+async function handleRosterImport(req, res, source) {
+  if (!requireSession(req, res, "admin")) return;
+  try {
+    const body = await readBody(req, 5_000_000);
+    const rows = parseCsv(body.csv);
+    if (rows.length < 2) throw new Error("Choose a Google Sheets CSV with a header row and player records.");
+    const headers = rows[0].map((value) => String(value || "").toLowerCase());
+    const column = (name) => headers.indexOf(name.toLowerCase());
+    const values = (row, name) => {
+      const index = column(name);
+      return index >= 0 ? row[index] || "" : "";
+    };
+    if (column("Player Name") === -1) throw new Error("The CSV needs a Player Name column.");
+    const store = readCrmStore();
+    let imported = 0;
+    rows.slice(1).forEach((row) => {
+      const name = values(row, "Player Name");
+      if (!name) return;
+      const key = normalizeName(name);
+      const index = store.players.findIndex((player) => normalizeName(player.name) === key);
+      const existing = index >= 0 ? store.players[index] : {};
+      const player = normalizeCrmPlayer({
+        ...existing,
+        name,
+        team: values(row, "Potential Team") || existing.team,
+        playerEmail: values(row, "Player email address") || existing.playerEmail,
+        parentName: values(row, "Parent Name") || existing.parentName,
+        parentEmail: values(row, "Parent Email Address") || existing.parentEmail,
+        playerPhone: values(row, "Player Cell Phone") || existing.playerPhone,
+        parentPhone: values(row, "Parent Cell Phone") || existing.parentPhone,
+        rosterStatus: source === "final" ? "selected" : (existing.rosterStatus === "selected" ? "selected" : "not_selected")
+      });
+      if (index >= 0) store.players[index] = player;
+      else store.players.push(player);
+      imported += 1;
+    });
+    writeCrmStore(store);
+    sendJson(res, 200, { ...store, imported });
+  } catch (error) { sendJson(res, 400, { error: error.message }); }
+}
+
 function safeFileName(value) {
   const ext = path.extname(value || "").toLowerCase();
   const base = path.basename(value || "upload", ext);
@@ -272,14 +496,16 @@ function createSession(res, user) {
 }
 
 function handleGoogleStart(req, res) {
+  const returnTo = new URL(req.url, `http://${req.headers.host}`).searchParams.get("return");
+  const safeReturnTo = returnTo && /^\/[a-z0-9._/-]*$/i.test(returnTo) ? returnTo : "/admin.html";
   if (!googleOAuth.clientId || !googleOAuth.clientSecret) {
-    res.writeHead(302, { Location: "/admin.html?login=google-unconfigured" });
+    res.writeHead(302, { Location: `${safeReturnTo}?login=google-unconfigured` });
     res.end();
     return;
   }
 
   const state = crypto.randomBytes(24).toString("hex");
-  oauthStates.set(state, Date.now());
+  oauthStates.set(state, { createdAt: Date.now(), returnTo: safeReturnTo });
   const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("client_id", googleOAuth.clientId);
   authUrl.searchParams.set("redirect_uri", getGoogleRedirectUri(req));
@@ -294,10 +520,10 @@ function handleGoogleStart(req, res) {
 async function handleGoogleCallback(req, res, requestUrl) {
   const code = requestUrl.searchParams.get("code");
   const state = requestUrl.searchParams.get("state");
-  const stateCreatedAt = oauthStates.get(state);
+  const stateData = oauthStates.get(state);
   oauthStates.delete(state);
 
-  if (!code || !stateCreatedAt || Date.now() - stateCreatedAt > 10 * 60 * 1000) {
+  if (!code || !stateData || Date.now() - stateData.createdAt > 10 * 60 * 1000) {
     res.writeHead(302, { Location: "/admin.html?login=google-failed" });
     res.end();
     return;
@@ -335,7 +561,7 @@ async function handleGoogleCallback(req, res, requestUrl) {
       username: googleUser.name || email,
       email
     });
-    res.writeHead(302, { Location: "/admin.html" });
+    res.writeHead(302, { Location: stateData.returnTo || "/admin.html" });
     res.end();
   } catch (error) {
     res.writeHead(302, { Location: "/admin.html?login=google-failed" });
@@ -725,6 +951,11 @@ function serveStatic(req, res, requestUrl) {
 
 const server = http.createServer((req, res) => {
   const requestUrl = new URL(req.url, `http://${req.headers.host}`);
+  if (requestUrl.pathname === "/crm") {
+    res.writeHead(302, { Location: "/crm.html" });
+    res.end();
+    return;
+  }
   if (requestUrl.pathname === "/auth/google") {
     handleGoogleStart(req, res);
     return;
@@ -743,6 +974,30 @@ const server = http.createServer((req, res) => {
   }
   if (requestUrl.pathname === "/api/session") {
     handleSession(req, res);
+    return;
+  }
+  if (requestUrl.pathname === "/api/crm" && req.method === "GET") {
+    handleCrm(req, res);
+    return;
+  }
+  if (/^\/api\/crm\/players\/[^/]+$/.test(requestUrl.pathname) && req.method === "PUT") {
+    handleCrmPlayerUpdate(req, res, requestUrl);
+    return;
+  }
+  if (requestUrl.pathname === "/api/crm/import-venmo" && req.method === "POST") {
+    handleVenmoImport(req, res);
+    return;
+  }
+  if (requestUrl.pathname === "/api/crm/import-payments-sheet" && req.method === "POST") {
+    handlePaymentsSheetImport(req, res);
+    return;
+  }
+  if (requestUrl.pathname === "/api/crm/import-final-teams" && req.method === "POST") {
+    handleRosterImport(req, res, "final");
+    return;
+  }
+  if (requestUrl.pathname === "/api/crm/import-tryouts" && req.method === "POST") {
+    handleRosterImport(req, res, "tryouts");
     return;
   }
   if (requestUrl.pathname === "/api/profiles" && req.method === "GET") {

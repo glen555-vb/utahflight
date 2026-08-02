@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utah Flight CRM</title>
+    <meta name="description" content="Private Utah Flight player and payment management." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="recruiting.css" />
+    <link rel="stylesheet" href="crm.css" />
+  </head>
+  <body>
+    <div class="recruiting-shell">
+      <header class="recruiting-topbar">
+        <a class="brand" href="index.html#home" aria-label="Utah Flight home">
+          <img src="assets/media/utah-flight-2026-logo.png" alt="Utah Flight logo" />
+          <div><p class="eyebrow">Utah Flight</p><p class="brand-name">Club CRM</p></div>
+        </a>
+        <nav class="recruiting-nav"><a href="admin.html">Recruiting Admin</a><a href="index.html">Main Site</a></nav>
+      </header>
+      <main>
+        <section id="crm-login" class="section admin-login-section">
+          <div class="container admin-login-layout">
+            <div class="section-heading"><p class="kicker">Private Admin Area</p><h1>Player Management.</h1><p>Manage team decisions, family contacts, and club payments in one place.</p></div>
+            <div class="auth-panel admin-auth-panel">
+              <a class="button google-button" href="/auth/google?return=/crm.html">Continue With Google</a>
+              <p id="login-status" class="form-status" aria-live="polite"></p>
+              <details class="local-login-details"><summary>Local admin login</summary><form id="login-form" class="login-form"><label><span>Username</span><input name="username" autocomplete="username" required /></label><label><span>Password</span><input name="password" type="password" autocomplete="current-password" required /></label><button class="button button-ghost" type="submit">Login</button></form></details>
+            </div>
+          </div>
+        </section>
+        <section id="crm-app" class="section" hidden>
+          <div class="container">
+            <div class="crm-heading">
+              <div class="section-heading"><p class="kicker">Roster And Payments</p><h1>Club CRM</h1><p id="crm-summary">Loading player records.</p></div>
+              <button id="logout-button" class="button button-ghost" type="button">Logout</button>
+            </div>
+            <section class="crm-metrics" aria-label="CRM summary">
+              <article><span>On Track</span><strong id="metric-on-track">0</strong></article><article><span>Past Due</span><strong id="metric-past-due">0</strong></article><article><span>Not Selected</span><strong id="metric-not-selected">0</strong></article><article><span>Unmatched Payments</span><strong id="metric-unmatched">0</strong></article>
+            </section>
+            <section class="crm-controls">
+              <label class="crm-search"><span>Search</span><input id="player-search" type="search" placeholder="Player, parent, or email" /></label>
+              <label><span>Roster</span><select id="status-filter"><option value="all">All players</option><option value="selected">Made the team</option><option value="not_selected">Not selected</option></select></label>
+              <label><span>Payment</span><select id="payment-filter"><option value="all">All payment statuses</option><option value="on_track">On track</option><option value="past_due">Past due</option><option value="paid">Paid in full</option></select></label>
+              <label class="file-action"><span>Import Final Teams CSV</span><input id="final-teams-file" type="file" accept=".csv,text/csv" /></label>
+              <label class="file-action"><span>Import All Tryouts CSV</span><input id="tryouts-file" type="file" accept=".csv,text/csv" /></label>
+              <label class="file-action"><span>Import Payments CSV</span><input id="payments-file" type="file" accept=".csv,text/csv" /></label>
+              <label class="file-action"><span>Import Venmo CSV</span><input id="venmo-file" type="file" accept=".csv,text/csv" /></label>
+            </section>
+            <p id="import-status" class="form-status" aria-live="polite"></p>
+            <div class="crm-layout">
+              <section><div id="player-list" class="crm-player-list"></div></section>
+              <aside id="player-detail" class="crm-detail"><p>Select a player to review their contacts and payment plan.</p></aside>
+            </div>
+            <section id="unmatched-section" class="crm-unmatched" hidden><div class="section-heading"><p class="kicker">Needs Review</p><h2>Unmatched Venmo Payments</h2></div><div id="unmatched-list" class="unmatched-list"></div></section>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="crm.js"></script>
+  </body>
+</html>
