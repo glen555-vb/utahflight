@@ -205,6 +205,20 @@ async function importPaymentsSheet(file) {
   $("payments-file").value = "";
 }
 
+async function importTrelloPhotos(file) {
+  if (!file) return;
+  $("import-status").textContent = "Matching Trello photos to player records...";
+  try {
+    const trelloJson = await file.text();
+    const data = await api("/api/crm/import-trello-photos", { method: "POST", body: JSON.stringify({ fileName: file.name, trelloJson, year: activeYear, season: activeSeason }) });
+    crmStore = data;
+    const { imported = 0, unmatched = [], failed = [] } = data.results || {};
+    $("import-status").textContent = `${imported} player photo${imported === 1 ? "" : "s"} imported.${unmatched.length ? ` ${unmatched.length} card${unmatched.length === 1 ? "" : "s"} did not match a player.` : ""}${failed.length ? ` ${failed.length} photo${failed.length === 1 ? "" : "s"} could not be downloaded.` : ""}`;
+    renderAll();
+  } catch (error) { $("import-status").textContent = error.message; }
+  $("trello-file").value = "";
+}
+
 async function importRoster(file, endpoint, label) {
   if (!file) return;
   $("import-status").textContent = `Importing ${label}...`;
@@ -257,6 +271,7 @@ $("add-installment-button").addEventListener("click", addInstallment);
 $("clear-year-button").addEventListener("click", clearYear);
 $("venmo-file").addEventListener("change", (event) => importVenmo(event.target.files[0]));
 $("payments-file").addEventListener("change", (event) => importPaymentsSheet(event.target.files[0]));
+$("trello-file").addEventListener("change", (event) => importTrelloPhotos(event.target.files[0]));
 $("final-teams-file").addEventListener("change", (event) => importRoster(event.target.files[0], "/api/crm/import-final-teams", "Final Teams"));
 $("tryouts-file").addEventListener("change", (event) => importRoster(event.target.files[0], "/api/crm/import-tryouts", "All Tryouts"));
 boot().catch((error) => { $("login-status").textContent = error.message; });

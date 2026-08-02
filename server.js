@@ -12,6 +12,10 @@ const profilesPath = path.join(dataDir, "recruiting-profiles.json");
 const seedProfilesPath = path.join(rootDir, "recruiting-seed.json");
 const crmPath = path.join(dataDir, "crm.json");
 const seedCrmPath = path.join(rootDir, "crm-seed.json");
+const trelloCredentials = {
+  key: process.env.TRELLO_API_KEY || "",
+  token: process.env.TRELLO_TOKEN || ""
+};
 const sessions = new Map();
 const oauthStates = new Map();
 const credentials = {
@@ -182,6 +186,7 @@ function normalizeCrmPlayer(player) {
     notes: safe.notes || "",
     sheetPaidAmount: Number(safe.sheetPaidAmount || 0),
     feeWaived: Boolean(safe.feeWaived),
+    photo: safe.photo || "",
     usesCustomPaymentPlan: safe.usesCustomPaymentPlan === true || (safe.usesCustomPaymentPlan === undefined && /crossley/i.test(`${safe.name || ""} ${safe.parentName || ""}`)),
     paymentPlan: Array.isArray(safe.paymentPlan) ? safe.paymentPlan : [],
     payments: Array.isArray(safe.payments) ? safe.payments : []
@@ -269,6 +274,12 @@ function readImportRows(body, preferredSheet, requiredHeaders) {
 
 function normalizeName(value) {
   return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function normalizeTrelloPlayerName(value) {
+  return normalizeName(String(value || "")
+    .replace(/^\s*\d+\s*[-:]*\s*/, "")
+    .replace(/\s+(?:wl|libero|setter|oh|mb|ds)\s*$/i, ""));
 }
 
 function parseMoney(value) {
@@ -510,6 +521,70 @@ async function handleRosterImport(req, res, source) {
     });
     writeCrmStore(store);
     sendJson(res, 200, { ...store, imported });
+  } catch (error) { sendJson(res, 400, { error: error.message }); }
+}
+
+function trelloPhotoExtension(attachment, contentType) {
+  const type = String(contentType || attachment.mimeType || "").toLowerCase().split(";")[0];
+  if (type === "image/png") return ".png";
+  if (type === "image/webp") return ".webp";
+  return ".jpg";
+}
+
+async function downloadTrelloPhoto(attachment, playerName) {
+  const sourceUrl = new URL(String(attachment.url || ""));
+  if (sourceUrl.protocol !== "https:" || !/(^|\.)trello\.com$/i.test(sourceUrl.hostname)) throw new Error("Invalid Trello image link.");
+  sourceUrl.searchParams.set("key", trelloCredentials.key);
+  sourceUrl.searchParams.set("token", trelloCredentials.token);
+  const response = await fetch(sourceUrl, { headers: { "User-Agent": "UtahFlightCRM/1.0 (+https://utahflight.com)" } });
+  const contentType = response.headers.get("content-type") || "";
+  if (!response.ok || !contentType.startsWith("image/")) throw new Error(`Trello returned ${response.status || "an invalid image"}.`);
+  const buffer = Buffer.from(await response.arrayBuffer());
+  if (!buffer.length || buffer.length > 25_000_000) throw new Error("Trello image must be under 25 MB.");
+  ensureUploadsDir();
+  const extension = trelloPhotoExtension(attachment, contentType);
+  const fileName = safeFileName(`${playerName}${extension}`).replace(/\.[^.]+$/, extension);
+  fs.writeFileSync(path.join(uploadsDir, fileName), buffer);
+  return `/uploads/recruiting/${fileName}`;
+}
+
+async function handleTrelloPhotoImport(req, res) {
+  if (!requireSession(req, res, "admin")) return;
+  try {
+    const body = await readBody(req, 20_000_000);
+    if (!trelloCredentials.key || !trelloCredentials.token) throw new Error("Set TRELLO_API_KEY and TRELLO_TOKEN in Railway before importing private Trello photos.");
+    const board = JSON.parse(String(body.trelloJson || ""));
+    if (!Array.isArray(board.cards)) throw new Error("This is not a Trello board JSON export.");
+    const store = readCrmStore();
+    const year = getCrmYear(body.year, store);
+    const season = getCrmSeason(body.season, year, store);
+    const players = store.players.filter((player) => player.year === year && player.season === season);
+    if (!players.length) throw new Error(`Import All Tryouts or Final Teams for ${season} ${year} before adding photos.`);
+    const profiles = readProfileStore();
+    const results = { imported: 0, matched: 0, unmatched: [], failed: [] };
+
+    for (const card of board.cards) {
+      const nameKey = normalizeTrelloPlayerName(card.name);
+      const playerMatches = players.filter((player) => normalizeName(player.name) === nameKey);
+      if (playerMatches.length !== 1) {
+        if (nameKey) results.unmatched.push(card.name || "Unnamed card");
+        continue;
+      }
+      const attachment = (card.attachments || []).find((item) => /^image\//i.test(item.mimeType || "") || /\.(jpe?g|png|webp)$/i.test(item.name || ""));
+      if (!attachment?.url) continue;
+      const player = playerMatches[0];
+      results.matched += 1;
+      try {
+        const photo = await downloadTrelloPhoto(attachment, player.name);
+        player.photo = photo;
+        const profile = profiles.profiles.find((item) => normalizeName(item.name) === normalizeName(player.name));
+        if (profile) profile.photo = photo;
+        results.imported += 1;
+      } catch (error) { results.failed.push(`${player.name}: ${error.message}`); }
+    }
+    writeCrmStore(store);
+    writeProfileStore(profiles);
+    sendJson(res, 200, { ...store, results });
   } catch (error) { sendJson(res, 400, { error: error.message }); }
 }
 
@@ -1153,6 +1228,10 @@ const server = http.createServer((req, res) => {
   }
   if (requestUrl.pathname === "/api/crm/import-tryouts" && req.method === "POST") {
     handleRosterImport(req, res, "tryouts");
+    return;
+  }
+  if (requestUrl.pathname === "/api/crm/import-trello-photos" && req.method === "POST") {
+    handleTrelloPhotoImport(req, res);
     return;
   }
   if (requestUrl.pathname === "/api/profiles" && req.method === "GET") {
