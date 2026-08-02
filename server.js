@@ -163,7 +163,7 @@ function writeProfileStore(store) {
 }
 
 function defaultPaymentPlan(player) {
-  const year = String(player.year || "2027");
+  const year = String(player.year || "2026");
   if (/crossley/i.test(`${player.name} ${player.parentName}`)) {
     return [`${year}-08-01`, `${year}-08-28`, `${year}-09-26`, `${year}-10-24`, `${year}-11-21`].map((dueDate) => ({ dueDate, amount: 180 }));
   }
@@ -196,15 +196,18 @@ function normalizeCrmPlayer(player) {
 
 function normalizeCrmStore(store) {
   const raw = store && typeof store === "object" ? store : {};
-  const players = (raw.players || []).map(normalizeCrmPlayer);
+  const shouldCorrectYear = Array.isArray(raw.years) && raw.years.includes("2027") && !raw.years.includes("2026");
+  const players = (raw.players || []).map((player) => normalizeCrmPlayer(shouldCorrectYear && player.year === "2027" ? { ...player, year: "2026" } : player));
   const unmatchedPayments = raw.unmatchedPayments || [];
   const legacyEmptyStore = !players.length && !unmatchedPayments.length && (!raw.seasonsByYear || !Object.keys(raw.seasonsByYear).length);
-  const years = legacyEmptyStore ? ["2027"] : (raw.years?.length ? raw.years : ["2026"]);
-  const seasonsByYear = raw.seasonsByYear || Object.fromEntries(years.map((year) => [year, ["Fall"]]));
+  const years = legacyEmptyStore ? ["2026"] : (shouldCorrectYear ? raw.years.map((year) => year === "2027" ? "2026" : year) : (raw.years?.length ? raw.years : ["2026"]));
+  const seasonsByYear = shouldCorrectYear ? { ...raw.seasonsByYear, "2026": raw.seasonsByYear?.["2027"] || ["Fall"] } : (raw.seasonsByYear || Object.fromEntries(years.map((year) => [year, ["Fall"]])));
+  if (shouldCorrectYear) delete seasonsByYear["2027"];
   years.forEach((year) => { if (!seasonsByYear[year]?.length) seasonsByYear[year] = ["Fall"]; });
-  const activeYear = years.includes(raw.activeYear) ? raw.activeYear : years[0];
+  const activeYear = years.includes(shouldCorrectYear && raw.activeYear === "2027" ? "2026" : raw.activeYear) ? (shouldCorrectYear && raw.activeYear === "2027" ? "2026" : raw.activeYear) : years[0];
   const activeSeason = seasonsByYear[activeYear].includes(raw.activeSeason) ? raw.activeSeason : seasonsByYear[activeYear][0];
-  return { players, unmatchedPayments, paymentBaselineDates: raw.paymentBaselineDates || (raw.paymentBaselineDate ? { "2026": raw.paymentBaselineDate } : {}), seasonPaymentPlans: raw.seasonPaymentPlans || {}, years, seasonsByYear, activeYear, activeSeason };
+  const moveSeasonKeys = (entries) => Object.fromEntries(Object.entries(entries || {}).map(([key, value]) => [shouldCorrectYear && key.startsWith("2027-") ? `2026-${key.slice(5)}` : key, value]));
+  return { players, unmatchedPayments: unmatchedPayments.map((payment) => shouldCorrectYear && payment.year === "2027" ? { ...payment, year: "2026" } : payment), paymentBaselineDates: moveSeasonKeys(raw.paymentBaselineDates || (raw.paymentBaselineDate ? { "2026": raw.paymentBaselineDate } : {})), seasonPaymentPlans: moveSeasonKeys(raw.seasonPaymentPlans), years, seasonsByYear, activeYear, activeSeason };
 }
 
 function readSeedCrmStore() {
@@ -224,7 +227,10 @@ function readCrmStore() {
     return seed;
   }
   try {
-    return normalizeCrmStore(JSON.parse(fs.readFileSync(crmPath, "utf8")));
+    const raw = JSON.parse(fs.readFileSync(crmPath, "utf8"));
+    const store = normalizeCrmStore(raw);
+    if (Array.isArray(raw.years) && raw.years.includes("2027") && !raw.years.includes("2026")) writeCrmStore(store);
+    return store;
   } catch (error) {
     return readSeedCrmStore();
   }

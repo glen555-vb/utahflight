@@ -2,7 +2,7 @@ const $ = (id) => document.getElementById(id);
 
 let crmStore = { players: [], unmatchedPayments: [] };
 let activePlayerId = "";
-let activeYear = "2027";
+let activeYear = "2026";
 let activeSeason = "Fall";
 
 function escapeHtml(value) {
@@ -153,7 +153,7 @@ function renderUnmatched() {
 }
 
 function renderYearControl() {
-  const years = crmStore.years?.length ? crmStore.years : ["2027"];
+  const years = crmStore.years?.length ? crmStore.years : ["2026"];
   if (!years.includes(activeYear)) activeYear = years[0];
   $("year-select").innerHTML = years.slice().sort().map((year) => `<option value="${escapeHtml(year)}" ${year === activeYear ? "selected" : ""}>${escapeHtml(year)}</option>`).join("");
   const seasons = crmStore.seasonsByYear?.[activeYear]?.length ? crmStore.seasonsByYear[activeYear] : ["Fall"];
@@ -235,7 +235,7 @@ async function boot() {
   if (!session.user || session.user.role !== "admin") { $("crm-login").hidden = false; $("crm-app").hidden = true; return; }
   $("crm-login").hidden = true; $("crm-app").hidden = false;
   crmStore = await api("/api/crm");
-  activeYear = crmStore.activeYear || "2027";
+  activeYear = crmStore.activeYear || "2026";
   activeSeason = crmStore.activeSeason || "Fall";
   renderAll();
 }
