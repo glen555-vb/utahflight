@@ -535,9 +535,12 @@ async function downloadTrelloPhoto(attachment, playerName) {
   const sourceUrl = new URL(String(attachment.url || ""));
   if (sourceUrl.protocol !== "https:" || !/(^|\.)trello\.com$/i.test(sourceUrl.hostname)) throw new Error("Invalid Trello image link.");
   sourceUrl.hostname = "api.trello.com";
-  sourceUrl.searchParams.set("key", trelloCredentials.key);
-  sourceUrl.searchParams.set("token", trelloCredentials.token);
-  const response = await fetch(sourceUrl, { headers: { "User-Agent": "UtahFlightCRM/1.0 (+https://utahflight.com)" } });
+  const response = await fetch(sourceUrl, {
+    headers: {
+      "User-Agent": "UtahFlightCRM/1.0 (+https://utahflight.com)",
+      Authorization: `OAuth oauth_consumer_key="${trelloCredentials.key}", oauth_token="${trelloCredentials.token}"`
+    }
+  });
   const contentType = response.headers.get("content-type") || "";
   if (!response.ok || !contentType.startsWith("image/")) throw new Error(`Trello returned ${response.status || "an invalid image"}.`);
   const buffer = Buffer.from(await response.arrayBuffer());
