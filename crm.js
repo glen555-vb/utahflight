@@ -2,7 +2,8 @@ const $ = (id) => document.getElementById(id);
 
 let crmStore = { players: [], unmatchedPayments: [] };
 let activePlayerId = "";
-let activeYear = "2026";
+let activeYear = "2027";
+let activeSeason = "Fall";
 
 function escapeHtml(value) {
   return String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
@@ -61,7 +62,7 @@ function gmailUrl(player, target) {
 function emailListUrl(players) {
   const parentEmails = [...new Set(players.flatMap((player) => recipients({ parentEmail: player.parentEmail }, "parent")))];
   const body = `Hello Utah Flight Families,\n\n\n\nThank you,\nUtah Flight Volleyball`;
-  return `https://mail.google.com/mail/u/0/?view=cm&fs=1&bcc=${encodeURIComponent(parentEmails.join(","))}&su=${encodeURIComponent(`Utah Flight ${activeYear} Update`)}&body=${encodeURIComponent(body)}`;
+  return `https://mail.google.com/mail/u/0/?view=cm&fs=1&bcc=${encodeURIComponent(parentEmails.join(","))}&su=${encodeURIComponent(`Utah Flight ${activeSeason} ${activeYear} Update`)}&body=${encodeURIComponent(body)}`;
 }
 
 function renderEmailListButton() {
@@ -73,7 +74,7 @@ function renderEmailListButton() {
 }
 
 function currentYearPlayers() {
-  return crmStore.players.filter((player) => (player.year || "2026") === activeYear);
+  return crmStore.players.filter((player) => (player.year || "2026") === activeYear && (player.season || "Fall") === activeSeason);
 }
 
 function renderMetrics() {
@@ -81,7 +82,7 @@ function renderMetrics() {
   $("metric-on-track").textContent = selected.filter((player) => ["on_track", "paid"].includes(paymentSummary(player).status)).length;
   $("metric-past-due").textContent = selected.filter((player) => paymentSummary(player).status === "past_due").length;
   $("metric-not-selected").textContent = currentYearPlayers().filter((player) => player.rosterStatus === "not_selected").length;
-  $("metric-unmatched").textContent = (crmStore.unmatchedPayments || []).filter((payment) => (payment.year || "2026") === activeYear).length;
+  $("metric-unmatched").textContent = (crmStore.unmatchedPayments || []).filter((payment) => (payment.year || "2026") === activeYear && (payment.season || "Fall") === activeSeason).length;
   $("crm-summary").textContent = `${selected.length} selected players. ${currentYearPlayers().length - selected.length} not selected.`;
 }
 
@@ -91,7 +92,7 @@ function filteredPlayers() {
   const payment = $("payment-filter").value;
   return crmStore.players.filter((player) => {
     const matchesQuery = !query || [player.name, player.parentName, player.playerEmail, player.parentEmail, player.team].join(" ").toLowerCase().includes(query);
-    return (player.year || "2026") === activeYear && matchesQuery && (roster === "all" || player.rosterStatus === roster) && (payment === "all" || paymentSummary(player).status === payment);
+    return (player.year || "2026") === activeYear && (player.season || "Fall") === activeSeason && matchesQuery && (roster === "all" || player.rosterStatus === roster) && (payment === "all" || paymentSummary(player).status === payment);
   }).sort((a, b) => a.name.localeCompare(b.name));
 }
 
@@ -106,7 +107,7 @@ function renderPlayers() {
 }
 
 function renderDetail() {
-  const player = crmStore.players.find((item) => item.id === activePlayerId && (item.year || "2026") === activeYear);
+  const player = crmStore.players.find((item) => item.id === activePlayerId && (item.year || "2026") === activeYear && (item.season || "Fall") === activeSeason);
   if (!player) { $("player-detail").innerHTML = "<p>Select a player to review their contacts and payment plan.</p>"; return; }
   const summary = paymentSummary(player);
   const [label, tone] = statusLabel(player);
@@ -118,7 +119,7 @@ function renderDetail() {
 
 async function savePlayer(event) {
   event.preventDefault();
-  const player = crmStore.players.find((item) => item.id === activePlayerId && (item.year || "2026") === activeYear);
+  const player = crmStore.players.find((item) => item.id === activePlayerId && (item.year || "2026") === activeYear && (item.season || "Fall") === activeSeason);
   const data = Object.fromEntries(new FormData(event.currentTarget).entries());
   const planText = data.paymentPlanText;
   delete data.paymentPlanText;
@@ -133,16 +134,19 @@ async function savePlayer(event) {
 }
 
 function renderUnmatched() {
-  const payments = (crmStore.unmatchedPayments || []).filter((payment) => (payment.year || "2026") === activeYear);
+  const payments = (crmStore.unmatchedPayments || []).filter((payment) => (payment.year || "2026") === activeYear && (payment.season || "Fall") === activeSeason);
   $("unmatched-section").hidden = !payments.length;
   $("unmatched-list").innerHTML = payments.map((item) => `<article class="unmatched-row"><div><strong>${escapeHtml(item.from || "Unknown sender")}</strong><p>${escapeHtml(item.date || "")} &bull; ${escapeHtml(item.note || "No note")}</p></div><strong>${money(item.amount)}</strong></article>`).join("");
 }
 
 function renderYearControl() {
-  const years = crmStore.years?.length ? crmStore.years : ["2026"];
+  const years = crmStore.years?.length ? crmStore.years : ["2027"];
   if (!years.includes(activeYear)) activeYear = years[0];
   $("year-select").innerHTML = years.slice().sort().map((year) => `<option value="${escapeHtml(year)}" ${year === activeYear ? "selected" : ""}>${escapeHtml(year)}</option>`).join("");
-  $("clear-year-button").textContent = `Clear ${activeYear} Data`;
+  const seasons = crmStore.seasonsByYear?.[activeYear]?.length ? crmStore.seasonsByYear[activeYear] : ["Fall"];
+  if (!seasons.includes(activeSeason)) activeSeason = seasons[0];
+  $("season-select").innerHTML = seasons.map((season) => `<option value="${escapeHtml(season)}" ${season === activeSeason ? "selected" : ""}>${escapeHtml(season)}</option>`).join("");
+  $("clear-year-button").textContent = `Clear ${activeSeason} ${activeYear} Data`;
 }
 
 function renderAll() { renderYearControl(); renderMetrics(); renderPlayers(); renderDetail(); renderUnmatched(); renderEmailListButton(); }
@@ -150,7 +154,7 @@ function renderAll() { renderYearControl(); renderMetrics(); renderPlayers(); re
 async function importVenmo(file) {
   if (!file) return;
   $("import-status").textContent = "Importing Venmo statement...";
-  try { crmStore = await api("/api/crm/import-venmo", { method: "POST", body: JSON.stringify({ ...(await uploadPayload(file)), year: activeYear }) }); $("import-status").textContent = "Venmo payments imported. Review any unmatched payments below."; renderAll(); } catch (error) { $("import-status").textContent = error.message; }
+  try { crmStore = await api("/api/crm/import-venmo", { method: "POST", body: JSON.stringify({ ...(await uploadPayload(file)), year: activeYear, season: activeSeason }) }); $("import-status").textContent = "Venmo payments imported. Review any unmatched payments below."; renderAll(); } catch (error) { $("import-status").textContent = error.message; }
   $("venmo-file").value = "";
 }
 
@@ -158,7 +162,7 @@ async function importPaymentsSheet(file) {
   if (!file) return;
   $("import-status").textContent = "Importing the Payments tab...";
   try {
-    crmStore = await api("/api/crm/import-payments-sheet", { method: "POST", body: JSON.stringify({ ...(await uploadPayload(file)), year: activeYear }) });
+    crmStore = await api("/api/crm/import-payments-sheet", { method: "POST", body: JSON.stringify({ ...(await uploadPayload(file)), year: activeYear, season: activeSeason }) });
     $("import-status").textContent = "Payments tab imported. Earlier Venmo transactions will not be counted again.";
     renderAll();
   } catch (error) { $("import-status").textContent = error.message; }
@@ -169,7 +173,7 @@ async function importRoster(file, endpoint, label) {
   if (!file) return;
   $("import-status").textContent = `Importing ${label}...`;
   try {
-    crmStore = await api(endpoint, { method: "POST", body: JSON.stringify({ ...(await uploadPayload(file)), year: activeYear }) });
+    crmStore = await api(endpoint, { method: "POST", body: JSON.stringify({ ...(await uploadPayload(file)), year: activeYear, season: activeSeason }) });
     $("import-status").textContent = `${label} imported. Review the roster and payment statuses.`;
     renderAll();
   } catch (error) { $("import-status").textContent = error.message; }
@@ -180,19 +184,26 @@ async function boot() {
   if (!session.user || session.user.role !== "admin") { $("crm-login").hidden = false; $("crm-app").hidden = true; return; }
   $("crm-login").hidden = true; $("crm-app").hidden = false;
   crmStore = await api("/api/crm");
-  activeYear = crmStore.activeYear || "2026";
+  activeYear = crmStore.activeYear || "2027";
+  activeSeason = crmStore.activeSeason || "Fall";
   renderAll();
 }
 
 async function addYear() {
-  const year = window.prompt("Enter the new season year, for example 2027.");
+  const year = window.prompt("Enter the new season year, for example 2028.");
   if (!/^20\d{2}$/.test(year || "")) return;
-  try { crmStore = await api("/api/crm/years", { method: "POST", body: JSON.stringify({ year }) }); activeYear = year; activePlayerId = ""; renderAll(); } catch (error) { $("import-status").textContent = error.message; }
+  try { crmStore = await api("/api/crm/years", { method: "POST", body: JSON.stringify({ year }) }); activeYear = year; activeSeason = "Fall"; activePlayerId = ""; renderAll(); } catch (error) { $("import-status").textContent = error.message; }
+}
+
+async function addSeason() {
+  const season = window.prompt("Enter Fall, Winter, Spring, or Summer.");
+  if (!season) return;
+  try { crmStore = await api(`/api/crm/years/${encodeURIComponent(activeYear)}/seasons`, { method: "POST", body: JSON.stringify({ season }) }); activeSeason = season[0].toUpperCase() + season.slice(1).toLowerCase(); activePlayerId = ""; renderAll(); } catch (error) { $("import-status").textContent = error.message; }
 }
 
 async function clearYear() {
-  if (!window.confirm(`Clear every ${activeYear} roster and payment record? This cannot be undone.`)) return;
-  try { crmStore = await api(`/api/crm/years/${encodeURIComponent(activeYear)}`, { method: "DELETE", body: "{}" }); activePlayerId = ""; $("import-status").textContent = `${activeYear} data cleared.`; renderAll(); } catch (error) { $("import-status").textContent = error.message; }
+  if (!window.confirm(`Clear every ${activeSeason} ${activeYear} roster and payment record? This cannot be undone.`)) return;
+  try { crmStore = await api(`/api/crm/years/${encodeURIComponent(activeYear)}/seasons/${encodeURIComponent(activeSeason)}`, { method: "DELETE", body: "{}" }); activePlayerId = ""; $("import-status").textContent = `${activeSeason} ${activeYear} data cleared.`; renderAll(); } catch (error) { $("import-status").textContent = error.message; }
 }
 
 $("login-form").addEventListener("submit", async (event) => { event.preventDefault(); try { await api("/api/login", { method: "POST", body: JSON.stringify(Object.fromEntries(new FormData(event.currentTarget).entries())) }); await boot(); } catch (error) { $("login-status").textContent = error.message; } });
@@ -202,7 +213,9 @@ $("status-filter").addEventListener("change", () => { renderPlayers(); renderEma
 $("payment-filter").addEventListener("change", () => { renderPlayers(); renderEmailListButton(); });
 $("email-list-button").addEventListener("click", (event) => { if ($("email-list-button").getAttribute("aria-disabled") === "true") event.preventDefault(); });
 $("year-select").addEventListener("change", (event) => { activeYear = event.target.value; activePlayerId = ""; renderAll(); });
+$("season-select").addEventListener("change", (event) => { activeSeason = event.target.value; activePlayerId = ""; renderAll(); });
 $("add-year-button").addEventListener("click", addYear);
+$("add-season-button").addEventListener("click", addSeason);
 $("clear-year-button").addEventListener("click", clearYear);
 $("venmo-file").addEventListener("change", (event) => importVenmo(event.target.files[0]));
 $("payments-file").addEventListener("change", (event) => importPaymentsSheet(event.target.files[0]));
