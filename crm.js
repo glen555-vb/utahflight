@@ -58,6 +58,20 @@ function gmailUrl(player, target) {
   return `https://mail.google.com/mail/u/0/?view=cm&fs=1&bcc=${encodeURIComponent(to)}&su=${encodeURIComponent(`Utah Flight - ${player.name}`)}&body=${encodeURIComponent(body)}`;
 }
 
+function emailListUrl(players) {
+  const parentEmails = [...new Set(players.flatMap((player) => recipients({ parentEmail: player.parentEmail }, "parent")))];
+  const body = `Hello Utah Flight Families,\n\n\n\nThank you,\nUtah Flight Volleyball`;
+  return `https://mail.google.com/mail/u/0/?view=cm&fs=1&bcc=${encodeURIComponent(parentEmails.join(","))}&su=${encodeURIComponent(`Utah Flight ${activeYear} Update`)}&body=${encodeURIComponent(body)}`;
+}
+
+function renderEmailListButton() {
+  const recipients = filteredPlayers().filter((player) => recipients({ parentEmail: player.parentEmail }, "parent").length);
+  const button = $("email-list-button");
+  button.href = emailListUrl(recipients);
+  button.setAttribute("aria-disabled", String(!recipients.length));
+  button.classList.toggle("is-disabled", !recipients.length);
+}
+
 function currentYearPlayers() {
   return crmStore.players.filter((player) => (player.year || "2026") === activeYear);
 }
@@ -131,7 +145,7 @@ function renderYearControl() {
   $("clear-year-button").textContent = `Clear ${activeYear} Data`;
 }
 
-function renderAll() { renderYearControl(); renderMetrics(); renderPlayers(); renderDetail(); renderUnmatched(); }
+function renderAll() { renderYearControl(); renderMetrics(); renderPlayers(); renderDetail(); renderUnmatched(); renderEmailListButton(); }
 
 async function importVenmo(file) {
   if (!file) return;
@@ -183,9 +197,10 @@ async function clearYear() {
 
 $("login-form").addEventListener("submit", async (event) => { event.preventDefault(); try { await api("/api/login", { method: "POST", body: JSON.stringify(Object.fromEntries(new FormData(event.currentTarget).entries())) }); await boot(); } catch (error) { $("login-status").textContent = error.message; } });
 $("logout-button").addEventListener("click", async () => { await api("/api/logout", { method: "POST", body: "{}" }); await boot(); });
-$("player-search").addEventListener("input", renderPlayers);
-$("status-filter").addEventListener("change", renderPlayers);
-$("payment-filter").addEventListener("change", renderPlayers);
+$("player-search").addEventListener("input", () => { renderPlayers(); renderEmailListButton(); });
+$("status-filter").addEventListener("change", () => { renderPlayers(); renderEmailListButton(); });
+$("payment-filter").addEventListener("change", () => { renderPlayers(); renderEmailListButton(); });
+$("email-list-button").addEventListener("click", (event) => { if ($("email-list-button").getAttribute("aria-disabled") === "true") event.preventDefault(); });
 $("year-select").addEventListener("change", (event) => { activeYear = event.target.value; activePlayerId = ""; renderAll(); });
 $("add-year-button").addEventListener("click", addYear);
 $("clear-year-button").addEventListener("click", clearYear);

@@ -35,7 +35,7 @@
           <div class="container">
             <div class="crm-heading">
               <div class="section-heading"><p class="kicker">Roster And Payments</p><h1>Club CRM</h1><p id="crm-summary">Loading player records.</p></div>
-              <div class="crm-heading-actions"><label><span>Season</span><select id="year-select" aria-label="Season year"></select></label><button id="add-year-button" class="button button-ghost" type="button">Add Year</button><button id="logout-button" class="button button-ghost" type="button">Logout</button></div>
+              <div class="crm-heading-actions"><a id="email-list-button" class="button button-ghost" target="_blank" rel="noopener">Email List</a><label><span>Season</span><select id="year-select" aria-label="Season year"></select></label><button id="add-year-button" class="button button-ghost" type="button">Add Year</button><button id="logout-button" class="button button-ghost" type="button">Logout</button></div>
             </div>
             <section class="crm-metrics" aria-label="CRM summary">
               <article><span>On-Track Payments</span><strong id="metric-on-track">0</strong></article><article><span>Past-Due Payments</span><strong id="metric-past-due">0</strong></article><article><span>Not Selected</span><strong id="metric-not-selected">0</strong></article><article><span>Unmatched Payments</span><strong id="metric-unmatched">0</strong></article>
@@ -44,8 +44,8 @@
               <label class="crm-search"><span>Search</span><input id="player-search" type="search" placeholder="Player, parent, or email" /></label>
               <label><span>Roster</span><select id="status-filter"><option value="all">All players</option><option value="selected">Made the team</option><option value="not_selected">Not selected</option></select></label>
               <label><span>Payment</span><select id="payment-filter"><option value="all">All payment statuses</option><option value="on_track">On track</option><option value="past_due">Past due</option><option value="paid">Paid in full</option></select></label>
-              <label class="file-action"><span>Import Final Teams</span><input id="final-teams-file" type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" /></label>
               <label class="file-action"><span>Import All Tryouts</span><input id="tryouts-file" type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" /></label>
+              <label class="file-action"><span>Import Final Teams</span><input id="final-teams-file" type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" /></label>
               <label class="file-action"><span>Import Payments</span><input id="payments-file" type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" /></label>
               <label class="file-action"><span>Import Venmo</span><input id="venmo-file" type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" /></label>
             </section>
@@ -60,6 +60,6 @@
         </section>
       </main>
     </div>
-    <script src="crm.js?v=crm-year-20260801"></script>
+    <script src="crm.js?v=crm-list-20260801"></script>
   </body>
 </html>
